@@ -1,0 +1,43 @@
+body{
+    background-color: hsl(0, 0%, 7%);
+}
+
+.main{
+    background-color: red;
+    width: 25%;
+    margin-top: 15%;
+    margin-left: 40%;
+    border-radius: 7px;
+}
+
+.inputFields{
+    margin: 2%;
+    margin-left:20%;
+}
+a{
+    margin-left: 35%;
+    color: white;
+}
+a:hover{
+    cursor:pointer;
+}
+label{
+    color:white;
+}
+.bottom{
+    margin-bottom: 10%;
+    
+}
+h1{
+    text-align: center;
+    color: white;
+}
+input{
+    border-radius: 7px;
+    outline: none;
+    box-shadow: none;
+}
+.submit{
+    margin-left: 40%;
+    border-radius: 4px;
+}
