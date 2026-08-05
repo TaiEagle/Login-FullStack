@@ -1,8 +1,10 @@
-import {createUser} from Auth;
+import Auth from "./Auth.js";
+
+console.log("execute 1");
+const authObj = new Auth();
 
 
-const authObj = Auth();
-
-
-
+console.log("execute 1");
 authObj.createUser("yoyoyo", "yoyoyoPasswordYO");
+
+console.log("execute 2");

@@ -1,4 +1,4 @@
-import {insertNewUser} from DB;
+import DB from "./Database_Driver.js";
 
 
 export default class Auth{
@@ -13,10 +13,10 @@ export default class Auth{
     //to the database 
     createUser(userName, Password){
 
-
+        const DB_Driver = new DB();
         //create object to put into database
         const user = {"userName": userName, "password": Password}
 
-        insertNewUser(user);
+        DB_Driver.insertNewUser(user);
     }
 }
