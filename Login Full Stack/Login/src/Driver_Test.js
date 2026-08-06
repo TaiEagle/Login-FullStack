@@ -1,10 +1,15 @@
 import Auth from "./Auth.js";
 
-console.log("execute 1");
-const authObj = new Auth();
+
+async function testing(){
+    //console.log("execute 1");
+    const authObj = new Auth();
 
 
-console.log("execute 1");
-authObj.createUser("yoyoyo", "yoyoyoPasswordYO");
+    //console.log("execute 1");
+    await authObj.createUser("yo It fucking worked Yo", "yoyoyoPasswordYO");
 
-console.log("execute 2");
+    //console.log("execute 2");
+}
+
+testing();
