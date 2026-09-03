@@ -4,7 +4,7 @@ import DB from "./Database_Driver.js";
 export default class Auth{
 
     constructor(){
-
+        
     }
 
 
@@ -19,5 +19,10 @@ export default class Auth{
         //console.log("execute 4");
         DB_Driver.insertNewUser(user);
         //console.log("execute 5");
+    }
+
+    async deleteUser(userName){
+        const DB_Driver = await new DB();
+        await DB_Driver.deleteUser(userName);
     }
 }

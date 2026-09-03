@@ -17,7 +17,10 @@ export default class DB {
 
         //This method determines if a username exists in the databse 
     async userExists(userName){
-        //console.log("execute 8");
+        console.log("execute 8");
+
+
+
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
@@ -25,22 +28,28 @@ export default class DB {
 
         //console.log("execute 9");
 
-        const query = {"userName": userName};
-        if(await myColl.countDocuments(query) > 0){
-            //console.log("returned false")
-            return false;
+        //const query = {"userName": userName}; don't use
+        //if the number of documents is greater than 0 (it exists)
+        if(await myColl.countDocuments({"userName": String(userName)}) > 0){
+            console.log("returned true")
+            return true;
         }
         else{
-            return true;
+            console.log("returned false")
+            return false;
         }
     }
 
 
 
     //This method inserts new user account in the database
+    //Parameter 1: JSON --- docs
+    //returns nothing 
     async insertNewUser(docs){
         //check if userName exists
+
         //console.log("execute 88");
+
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
@@ -48,14 +57,22 @@ export default class DB {
 
         //console.log("execute 99");
         //if the user does not exist
-        if(this.userExists(docs.userName)){
+        
+        if(await this.userExists(docs.userName) == false){
             //insert document into the databse 
-            const result = myColl.insertOne(docs);
+            console.log("exectued");
+            //TODO:: change password parameter
+            const result = myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  });
             console.log("Inserted");
+
+
+            //testing
             const documents = await myColl.find({}).toArray();
             for(let i = 0; i < await myColl.countDocuments({}); i++){
                 console.log(documents[i])
             }
+
+            //testing
         }
         //don't create new user
         else{
@@ -66,5 +83,15 @@ export default class DB {
     }
 
 
+    async deleteUser(userName){
+
+        //connect to database
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("AuthCredentials");
+
+        await myColl.deleteOne({"userName": String(userName)});
+    
+    }
 
 }
