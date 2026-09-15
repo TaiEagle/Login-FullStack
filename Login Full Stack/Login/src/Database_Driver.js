@@ -17,7 +17,7 @@ export default class DB {
 
         //This method determines if a username exists in the databse 
     async userExists(userName){
-        console.log("execute 8");
+        //console.log("execute 8");
 
 
 
@@ -30,12 +30,16 @@ export default class DB {
 
         //const query = {"userName": userName}; don't use
         //if the number of documents is greater than 0 (it exists)
-        if(await myColl.countDocuments({"userName": String(userName)}) > 0){
-            console.log("returned true")
+        //if(await myColl.countDocuments({"userName": String(userName)}) > 0){
+
+        console.log(await myColl.findOne({"userName": userName}))
+
+        if(await myColl.findOne({"userName": String(userName)}) != null ){
+            //console.log("returned true")
             return true;
         }
         else{
-            console.log("returned false")
+            //console.log("returned false")
             return false;
         }
     }
@@ -60,10 +64,10 @@ export default class DB {
         
         if(await this.userExists(docs.userName) == false){
             //insert document into the databse 
-            console.log("exectued");
+            //console.log("exectued");
             //TODO:: change password parameter
             const result = myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  });
-            console.log("Inserted");
+            //console.log("Inserted");
 
 
             //testing
