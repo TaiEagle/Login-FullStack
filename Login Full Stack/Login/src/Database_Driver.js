@@ -68,9 +68,9 @@ export default class DB {
             //TODO:: change password parameter
             const result = myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  });
 
-            console.log(typeof(result));
+            
             //console.log(myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  }))
-            if(await result.userName == docs.userName){
+            if((await result).acknowledged == true){
                 //console.log(result);
                 console.log("returned true");
                 return true;
