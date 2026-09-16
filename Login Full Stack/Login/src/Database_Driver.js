@@ -32,7 +32,7 @@ export default class DB {
         //if the number of documents is greater than 0 (it exists)
         //if(await myColl.countDocuments({"userName": String(userName)}) > 0){
 
-        console.log(await myColl.findOne({"userName": userName}))
+        //console.log(await myColl.findOne({"userName": userName}))
 
         if(await myColl.findOne({"userName": String(userName)}) != null ){
             //console.log("returned true")
@@ -67,20 +67,30 @@ export default class DB {
             //console.log("exectued");
             //TODO:: change password parameter
             const result = myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  });
-            //console.log("Inserted");
 
-
+            console.log(typeof(result));
+            //console.log(myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  }))
+            if(await result.userName == docs.userName){
+                //console.log(result);
+                console.log("returned true");
+                return true;
+            }
+            else{
+                //console.log(result);
+                console.log("returned false");
+                return false;
+            }
             //testing
             const documents = await myColl.find({}).toArray();
             for(let i = 0; i < await myColl.countDocuments({}); i++){
-                console.log(documents[i])
+                //console.log(documents[i])
             }
 
             //testing
         }
         //don't create new user
         else{
-            return;
+            return false;
         }
 
 

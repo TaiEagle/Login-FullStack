@@ -21,20 +21,20 @@ QUnit.test('Add user', async (assert) => {
     let dbDriver = new DB();
 
     let exists = await dbDriver.userExists("userName");
-    console.log("yoyoyo");
-    console.log(exists);
+    //console.log("yoyoyo");
+    //console.log(exists);
     //check that the user does not exist
-    await assert.equal(exists, false);
+    assert.equal(exists, false);
 
     //add user name
     let authObj = new Auth();
-    await authObj.createUser("userName", "password");
+    let writeSuccess = await authObj.createUser("userName", "password");
 
-    let existsNow = await dbDriver.userExists("userName");
-    console.log("yoyoya");
-    console.log(existsNow);
+    //let existsNow = await dbDriver.userExists("userName");
+    //console.log("yoyoya");
+    //console.log(writeSuccess);
     //check that the user does exist
-    await assert.equal(exists, true);
+    assert.equal(writeSuccess, true);
 
 
 

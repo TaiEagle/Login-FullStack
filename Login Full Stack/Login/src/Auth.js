@@ -17,7 +17,19 @@ export default class Auth{
         //create object to put into database
         const user = {"userName": userName, "password": Password}
         //console.log("execute 4");
-        DB_Driver.insertNewUser(user);
+
+        let driverSucess = await DB_Driver.insertNewUser(user);
+        console.log(driverSucess)
+        if( await driverSucess == true){
+            //console.log(driverSucess)
+            //console.log("reutnred true")
+            return true;
+        }
+        else{
+            //console.log(driverSucess)
+            //console.log("reutnred false")
+            return false;
+        }
         //console.log("execute 5");
     }
 
