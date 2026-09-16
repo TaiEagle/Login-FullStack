@@ -41,21 +41,9 @@ QUnit.test('Add user', async (assert) => {
 });
 
 
-/*
-QUnit.test('Test with async-await', async function (assert) {
-     const dbDriver = new DB();
+QUnit.test('Authenticate user', async (assert) => {
+    let authObj = new Auth();
+    let writeSuccess = await authObj.createUser("userNameAuthenticateTest", "password");
 
-    const exists = dbDriver.userExists("userName");
-
-    //check that the user does not exist
-    assert.equal(exists, false);
-
-    //add user name
-    const authObj = new Auth();
-    authObj.createUser("userName", "password");
-
-    exists = dbDriver.userExists("userName");
-    //check that the user does exist
-    assert.equal(exists, true);
-});
-*/
+    assert.equals();
+})

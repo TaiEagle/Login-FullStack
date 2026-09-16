@@ -97,6 +97,17 @@ export default class DB {
     }
 
 
+    //This method returns a user object
+    async getUser(userName){
+        //connect to database
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("AuthCredentials");
+
+        return await myColl.findOne({"userName": String(userName)});
+    }
+
+    //This method deletes a user 
     async deleteUser(userName){
 
         //connect to database

@@ -33,6 +33,25 @@ export default class Auth{
         //console.log("execute 5");
     }
 
+
+    /*
+    //This method authenticates a user 
+    */
+   async authenticate(userName, passWord){
+
+        let DB_Driver = await new DB();
+        //create object to put into database
+        
+        let user = await DB_Driver.getUser(userName);
+
+        if(user.passWord == passWord){
+            return true;
+        }
+        else{
+            return false;
+        }
+   }
+
     async deleteUser(userName){
         const DB_Driver = await new DB();
         await DB_Driver.deleteUser(userName);
