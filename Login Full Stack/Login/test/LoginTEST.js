@@ -21,8 +21,9 @@ QUnit.test('Add user', async (assert) => {
     let dbDriver = new DB();
 
     let exists = await dbDriver.userExists("userName");
-    //console.log("yoyoyo");
-    //console.log(exists);
+    
+
+
     //check that the user does not exist
     assert.equal(exists, false);
 
@@ -30,11 +31,12 @@ QUnit.test('Add user', async (assert) => {
     let authObj = new Auth();
     let writeSuccess = await authObj.createUser("userName", "password");
 
-    //let existsNow = await dbDriver.userExists("userName");
-    //console.log("yoyoya");
-    //console.log(writeSuccess);
+    
     //check that the user does exist
     assert.equal(writeSuccess, true);
+
+
+    await dbDriver.deleteUser("userName");
 
 
 
@@ -43,7 +45,10 @@ QUnit.test('Add user', async (assert) => {
 
 QUnit.test('Authenticate user', async (assert) => {
     let authObj = new Auth();
-    let writeSuccess = await authObj.createUser("userNameAuthenticateTest", "password");
 
-    assert.equals();
+    let userName = "userNameAuthenticate";
+    let password = "password123";
+    let athenticate = await authObj.authenticate(userName, password);
+
+    assert.equal(athenticate, true);
 })

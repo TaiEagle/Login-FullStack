@@ -72,12 +72,12 @@ export default class DB {
             //console.log(myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  }))
             if((await result).acknowledged == true){
                 //console.log(result);
-                console.log("returned true");
+                //console.log("returned true");
                 return true;
             }
             else{
                 //console.log(result);
-                console.log("returned false");
+                //console.log("returned false");
                 return false;
             }
             //testing
