@@ -18,7 +18,7 @@ export default class Auth{
         
         //hash and salt password
         try{
-            const hash = await argon2.hash("password")
+            const hash = await argon2.hash(Password)
             const user = {"userName": userName, "password": hash} 
             let driverSucess = await DB_Driver.insertNewUser(user);
 
@@ -64,11 +64,11 @@ export default class Auth{
         //authenticate user 
         try{
             if(await argon2.verify(user.password, passWord)){
-                console.log("reutrned true")
+                //console.log("reutrned true")
                 return true;
             }
             else{
-                console.log("reutrned false")
+                //console.log("reutrned false")
                 return false;
             }
         }
