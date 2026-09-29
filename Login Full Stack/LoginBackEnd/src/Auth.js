@@ -2,6 +2,9 @@ import DB from "./Database_Driver.js";
 //const DB = require("./Database_Driver.js")
 import argon2 from "argon2";
 //const argon2 = require("argon2")
+import jwt from "jsonwebtoken";
+const { sign, verify } = jwt;
+
 
 export default class Auth{
 //class Auth{
@@ -91,5 +94,37 @@ export default class Auth{
     async deleteUser(userName){
         const DB_Driver = await new DB();
         await DB_Driver.deleteUser(userName);
+    }
+
+
+    //This method creates a JWT to send the user 
+    
+
+    createToken(){
+        const token = jwt.sign({foo: "5^jf8eIxF"}, "BobcatSmoke", {algorithm: "RSA256"}, {expiresIn: "1h"});
+        return token;
+    }
+
+    //This method verifies a token from user input
+    verifyToken(userToken){
+        
+        //ensure it is a string 
+        try{
+            let token = String(userToken);
+        }
+        catch(e){
+            return false;
+        }
+
+    
+        //decode the token 
+        try{
+            let decoded = jwt.verify(token, "5^jf8eIxF");
+            console.log(decoded);
+        }
+        catch(e){
+            return false;
+        }
+
     }
 }

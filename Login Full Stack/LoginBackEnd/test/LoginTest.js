@@ -64,3 +64,15 @@ QUnit.test('Authenticate with bad password', async (assert) =>{
 
     assert.equal(athenticate, false);
 })
+
+QUnit.test('JWT testing', (assert =>{
+
+    let authObj = new Auth();
+    
+    const userToken = authObj.createToken();
+
+    const decoded = authObj.verifyToken(userToken);
+
+    assert.equal(decoded, true);
+
+}))
