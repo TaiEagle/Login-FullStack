@@ -70,6 +70,8 @@ export default class Auth{
         try{
             if(await argon2.verify(user.password, passWord)){
                 //console.log("reutrned true")
+                //if the password is true, send a token
+                const token = this.createToken(userName)
                 return true;
             }
             else{
@@ -100,13 +102,13 @@ export default class Auth{
     //This method creates a JWT to send the user 
     
 
-    createToken(){
-        const token = jwt.sign({name: "userName", permission: "client"}, "5^jf8eIxF", {expiresIn: "1h"});
+    createToken(userName){
+        const token = jwt.sign({name: userName}, "5^jf8eIxF", {expiresIn: "1h"});
         return token;
     }
 
     //This method verifies a token from user input
-    verifyToken(userToken){
+    verifyToken(userToken, userName){
         
         
 
@@ -118,11 +120,14 @@ export default class Auth{
             //verify the token
             let decoded = jwt.verify(token, "5^jf8eIxF");
             //console.log(decoded.name);
-            return [true, decoded.name, decoded.permission];
+            if(decoded.name === userName){
+                return [true, decoded.name];
+            }
+            throw new error("wrong userName in token");
         }
         catch(e){
             //console.log(e);
-            return [false, null, null];
+            return [false, null];
         }
 
     }

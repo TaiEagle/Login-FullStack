@@ -69,10 +69,10 @@ QUnit.test('JWT testing', (assert =>{
 
     let authObj = new Auth();
     
-    const userToken = authObj.createToken();
+    const userToken = authObj.createToken("userName1", "client");
 
-    const [decoded, name, permission] = authObj.verifyToken(userToken);
-    console.log(decoded);
+    const [decoded, name] = authObj.verifyToken(userToken, "userName1");
+    //console.log(decoded);
 
     assert.equal(decoded, true);
 
@@ -82,14 +82,30 @@ QUnit.test('JWT testing bad token string', (assert =>{
 
     let authObj = new Auth();
     
-    const userToken = authObj.createToken();
+    const userToken = authObj.createToken("userName1", "client");
 
     //console.log(userToken);
     const wrongToken = "50IiwiaWF0IjoxNzkwNzUJleHAiOjE3OTA3NTU5NTJ9.wR0tfAe1FwhqoXKHxU1ulW0B_JssxRKFFczIp1A"
 
-    const [decoded, name, permission] = authObj.verifyToken(wrongToken);
-    console.log(decoded);
+    const [decoded, name] = authObj.verifyToken(wrongToken, "userName1");
+    //console.log(decoded);
 
     assert.equal(decoded, false);
+
+}))
+
+QUnit.test('JWT testing bad name payload', (assert =>{
+
+    let authObj = new Auth();
+    
+    const userToken1 = authObj.createToken("userName1", "client");
+    const userToken2 = authObj.createToken("userName2", "client");
+
+    const [decoded, name] = authObj.verifyToken(userToken2, "userName1");
+    //console.log(decoded);
+
+    assert.equal(decoded, false);
+    assert.equal(name, null);
+    
 
 }))
