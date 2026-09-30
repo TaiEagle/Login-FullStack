@@ -71,8 +71,25 @@ QUnit.test('JWT testing', (assert =>{
     
     const userToken = authObj.createToken();
 
-    const decoded = authObj.verifyToken(userToken);
+    const [decoded, name, permission] = authObj.verifyToken(userToken);
+    console.log(decoded);
 
     assert.equal(decoded, true);
+
+}))
+
+QUnit.test('JWT testing bad token string', (assert =>{
+
+    let authObj = new Auth();
+    
+    const userToken = authObj.createToken();
+
+    //console.log(userToken);
+    const wrongToken = "50IiwiaWF0IjoxNzkwNzUJleHAiOjE3OTA3NTU5NTJ9.wR0tfAe1FwhqoXKHxU1ulW0B_JssxRKFFczIp1A"
+
+    const [decoded, name, permission] = authObj.verifyToken(wrongToken);
+    console.log(decoded);
+
+    assert.equal(decoded, false);
 
 }))

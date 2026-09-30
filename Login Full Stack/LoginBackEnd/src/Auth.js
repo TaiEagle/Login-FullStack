@@ -101,29 +101,28 @@ export default class Auth{
     
 
     createToken(){
-        const token = jwt.sign({foo: "5^jf8eIxF"}, "BobcatSmoke", {algorithm: "RSA256"}, {expiresIn: "1h"});
+        const token = jwt.sign({name: "userName", permission: "client"}, "5^jf8eIxF", {expiresIn: "1h"});
         return token;
     }
 
     //This method verifies a token from user input
     verifyToken(userToken){
         
-        //ensure it is a string 
-        try{
-            let token = String(userToken);
-        }
-        catch(e){
-            return false;
-        }
+        
 
     
         //decode the token 
         try{
+            //ensure it is a string
+            let token = String(userToken);
+            //verify the token
             let decoded = jwt.verify(token, "5^jf8eIxF");
-            console.log(decoded);
+            //console.log(decoded.name);
+            return [true, decoded.name, decoded.permission];
         }
         catch(e){
-            return false;
+            //console.log(e);
+            return [false, null, null];
         }
 
     }
