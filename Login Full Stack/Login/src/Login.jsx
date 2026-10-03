@@ -2,6 +2,8 @@ import './Login.css'
 
 function Login(){
     async function Submit(e){
+
+        const URL = "http://localhost:3000/Login"
         //prevent the browser from reloading the page
         e.preventDefault();
         //read the form data
@@ -13,23 +15,28 @@ function Login(){
         //console.log(userName);
         //console.log(password);
 
-        const user = {JSON_userName: userName, JSON_password: password}
+        const user = JSON.stringify({JSON_userName: userName, JSON_password: password})
+
         console.log(user)
+        console.log("sumbitted")
         //send to the server 
-        /*
-        const response = await fetch("URL", {
+        
+        const response = await fetch(URL, {
             method: "POST",
-            body: user
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({JSON_userName: userName, JSON_password: password})
         });
         //store the token if the response status is ok
         if(response.status === 200){
+            console.log(response)
             sessionStorage.setItem("token", response);
         }
         else{
+            console.log("status not 200");
             //show errors 
         }
         
-*/
+
     }
 
 
