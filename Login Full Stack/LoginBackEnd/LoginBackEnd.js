@@ -19,15 +19,32 @@ app.get('/Login', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
-//Not tested
-app.post('/Login', (req, res) => {
+//login attempt
+app.post('/Login', async (req, res) => {
   console.log("executed")
   const authObj = new auth();
-  console.log(req.body.JSON_userName);
-  let token = authObj.createToken(req.body.JSON_userName);
+  console.log(typeof(req.body.JSON_userName));
+  console.log(typeof(req.body.JSON_password));
+  let authenticated = await authObj.authenticate(req.body.JSON_userName, req.body.JSON_password)
+  if( authenticated === true){
+    let token = authObj.createToken(req.body.JSON_userName);
+    //console.log(token)
+    res.send(token)
+  }
+  else{
+    console.log("not authenticated")
+    res.sendStatus(401);
+  }
 
-  res.send(token)
+
+
+
 })
+
+
+
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

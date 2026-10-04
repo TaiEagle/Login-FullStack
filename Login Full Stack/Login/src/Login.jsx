@@ -28,8 +28,10 @@ function Login(){
         });
         //store the token if the response status is ok
         if(response.status === 200){
-            console.log(response)
-            sessionStorage.setItem("token", response);
+            const token = response.text();
+            //console.log(typeof(token));
+            //console.log(token);
+            sessionStorage.setItem("token", token);
         }
         else{
             console.log("status not 200");
