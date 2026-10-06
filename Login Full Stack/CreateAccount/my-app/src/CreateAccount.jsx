@@ -5,34 +5,39 @@ function CreateAccount(){
 
     return (<div>
 
+        <div className="Main"> 
         <h1>Create Account</h1>
         
         <form>
 
-            <div>
-                <label>First name:
-                    <input type="text" id="FirstName"></input>
+            <div className="FirstName">
+                <label for="FirstName">First name:
+                    
                 </label>
+                <input type="text" id="FirstName" name="FirstName"></input>
             </div>
 
-            <div>
-                <label>Last name:
-                    <input type="text" id="LastName"></input>
+            <div className="LastName">
+                <label for="LastName">Last name:
+                    
                 </label>
-            </div>
-
-
-            <div>
-                <label>Email:
-                    <input type="text" id="Email"></input>
-                </label>
+                <input type="text" id="LastName" name='LastName'></input>
             </div>
 
 
-            <div>
-                <label>Password:
-                    <input type="password" id="Password"></input>
+            <div className="Email">
+                <label name="Email">Email:
+                    
                 </label>
+                <input type="text" id="Email" name='Email'></input>
+            </div>
+
+
+            <div className="Password">
+                <label for="Password">Password:
+                    
+                </label>
+                <input type="password" id="Password" name='Password'></input>
             </div>
 
 
@@ -41,7 +46,7 @@ function CreateAccount(){
             <button type="submit">Sign up</button>
             
         </form>
-     
+     </div>
         
     </div>)
 }
