@@ -11,14 +11,14 @@ function CreateAccount(){
         <form>
 
             <div className="FirstName">
-                <label for="FirstName">First name:
+                <label for="FirstName">First name: <span className="required">*</span>
                     
                 </label>
                 <input type="text" id="FirstName" name="FirstName"></input>
             </div>
 
             <div className="LastName">
-                <label for="LastName">Last name:
+                <label for="LastName">Last name: <span className="required">*</span>
                     
                 </label>
                 <input type="text" id="LastName" name='LastName'></input>
@@ -26,7 +26,7 @@ function CreateAccount(){
 
 
             <div className="Email">
-                <label name="Email">Email:
+                <label name="Email">Email: <span className="required">*</span>
                     
                 </label>
                 <input type="text" id="Email" name='Email'></input>
@@ -34,7 +34,7 @@ function CreateAccount(){
 
 
             <div className="Password">
-                <label for="Password">Password:
+                <label for="Password">Password: <span className="required">*</span>
                     
                 </label>
                 <input type="password" id="Password" name='Password'></input>
@@ -42,7 +42,9 @@ function CreateAccount(){
 
 
 
-
+            <h6>
+                Fill out all fields*
+            </h6>
             <button type="submit">Sign up</button>
             
         </form>

@@ -47,15 +47,19 @@ function Login(){
             <h1 className='component'>Login</h1>
             <form method='post' onSubmit={Submit} >
                 <div className='inputFields'>
-                    <label className='componentInput'>username: </label>
+                    <label className='componentInput'>Username: <span className="required">*</span> </label>
                     <input type='text' className='componentInput' name='name'></input>
                 </div>
                 <div className='inputFields'>
-                    <label className='componentInput'>password: </label>
+                    <label className='componentInput'>Password: <span className="required">*</span> </label>
                     <input type='password' className='componentInput'name='password'></input>
                 </div>
+                
+                <h6 className="invalid">Invalid username or password*</h6>
+                <h6 className="fill">Fill out all fields*</h6>
                 <button className='submit' type="submit" >Submit</button>
             </form>
+            
             <a className='component' href='./createAccount.html'>Create account</a>
             <br></br>
             <a className='bottom'>Forgot password</a>
