@@ -60,9 +60,9 @@ function Login(){
                 <button className='submit' type="submit" >Submit</button>
             </form>
             
-            <a className='component' href='./createAccount.html'>Create account</a>
+            <a className='component' href='../CreateAccount'>Create account</a>
             <br></br>
-            <a className='bottom'>Forgot password</a>
+            <a className='bottom' href='../ChangePassword'>Forgot password</a>
 
         </div>
     

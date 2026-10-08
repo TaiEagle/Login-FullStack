@@ -34,14 +34,14 @@ app.get('/Login', (req, res) => {
 
 
 //Create account page
-app.get('/CreateAccount', (req, res) =>{
-  res.sendFile(path.join(__dirname, 'createAccount', 'createAccount.html'));
+app.get('/createAccount', (req, res) =>{
+  res.sendFile(path.join(__dirname, 'createAccount', 'index.html'));
 })
 
 
 
 //Change password page
-app.get('/ChangePassword', (req, res) =>{
+app.get('/changePassword', (req, res) =>{
   res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
 })
 
