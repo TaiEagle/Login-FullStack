@@ -17,7 +17,9 @@ export default class DB {
 
 
         //This method determines if a username exists in the databse 
-    async userExists(userName){
+        //Parameter 1: String --- userName
+        //Returns a boolean
+    async userExists(email){
         //console.log("execute 8");
 
 
@@ -35,7 +37,7 @@ export default class DB {
 
         //console.log(await myColl.findOne({"userName": userName}))
 
-        if(await myColl.findOne({"userName": String(userName)}) != null ){
+        if(await myColl.findOne({"email": String(email)}) != null ){
             //console.log("returned true")
             return true;
         }
@@ -63,11 +65,11 @@ export default class DB {
         //console.log("execute 99");
         //if the user does not exist
         
-        if(await this.userExists(docs.userName) == false){
+        if(await this.userExists(docs.email) == false){
             //insert document into the databse 
             //console.log("exectued");
             //TODO:: change password parameter
-            const result = myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  });
+            const result = myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password),  });
 
             
             //console.log(myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  }))

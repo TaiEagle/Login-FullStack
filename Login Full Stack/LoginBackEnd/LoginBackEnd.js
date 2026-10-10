@@ -13,9 +13,9 @@ const port = 3000;
 //Login assets
 app.use(express.static(path.join(__dirname, 'dist')));
 //create account assets
-app.use(express.static(path.join(__dirname, 'createAcount')));
+app.use(express.static(path.join(__dirname, 'createAccount')));
 //change password assets
-app.use(express.static(path.join(__dirname, 'updatePassword')));
+app.use(express.static(path.join(__dirname, 'changePassword')));
 
 
 
@@ -34,14 +34,54 @@ app.get('/Login', (req, res) => {
 
 
 //Create account page
-app.get('/createAccount', (req, res) =>{
+app.get('/CreateAccount', (req, res) =>{
   res.sendFile(path.join(__dirname, 'createAccount', 'index.html'));
+  console.log("send create account html");
+})
+
+
+//create account request 
+app.post('/CreateAccount', async (req, res) => {
+  
+  console.log("create account started")
+  const authObj = new auth();
+  let firstName = String(req.body.firstNameJson);
+  let lastName = String(req.body.lastNameJson);
+  let email = String(req.body.emailJson);
+  let password = String(req.body.passwordJson);
+
+  //user input validation 
+  //if any of the fields are empty
+  if(firstName === "" || lastName === "" || email === "" || password === ""){
+    app.sendStatus(403);
+    
+  }
+  else{
+    console.log(firstName)
+    console.log(lastName)
+    console.log(email)
+    console.log(password)
+    console.log(req.body.firstNameJson)
+    console.log(req.body.lastNameJson)
+    console.log(req.body.emailJson)
+    console.log(req.body.passwordJson)
+  //create new user 
+  let response = await authObj.createUser(firstName, lastName, email, password);
+  console.log(response)
+  }
+
+
+  
+
 })
 
 
 
+
+
+
 //Change password page
-app.get('/changePassword', (req, res) =>{
+app.get('/ChangePassword', (req, res) =>{
   res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
 })
 
@@ -49,8 +89,8 @@ app.get('/changePassword', (req, res) =>{
 app.post('/Login', async (req, res) => {
   console.log("executed");
   const authObj = new auth();
-  console.log(typeof(req.body.JSON_userName));
-  console.log(typeof(req.body.JSON_password));
+  //console.log(typeof(req.body.JSON_userName));
+  //console.log(typeof(req.body.JSON_password));
   let authenticated = await authObj.authenticate(req.body.JSON_userName, req.body.JSON_password);
   if( authenticated === true){
     let token = authObj.createToken(req.body.JSON_userName);

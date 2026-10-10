@@ -16,16 +16,34 @@ export default class Auth{
 
     //This method creates a user. Taking in user input, a user name and password is added
     //to the database 
-    async createUser(userName, Password){
+    async createUser(firstName, lastName, email, password){
         //console.log("execute 3");
         const DB_Driver = await new DB();
 
         
         //hash and salt password
         try{
-            const hash = await argon2.hash(Password)
-            const user = {"userName": userName, "password": hash} 
-            let driverSucess = await DB_Driver.insertNewUser(user);
+            
+            //ensure user input is a string 
+            let firstNameStr = String(firstName);
+            let lastNameStr = String(lastName);
+            let emailStr = String(email);
+            let passwordStr = String(password);
+
+            //create password hash
+            const hash = await argon2.hash(passwordStr)
+            const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": email, "password": hash} ;
+
+            if(await DB_Driver.userExists(emailStr) === false){
+
+                let driverSucess = await DB_Driver.insertNewUser(user);
+                console.log("complete")
+            }
+            else{
+                console.log("returned")
+                return;
+            }
+            
 
             if( await driverSucess == true){
             //console.log(driverSucess)
