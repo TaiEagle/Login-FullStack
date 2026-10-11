@@ -48,10 +48,16 @@ function CreateAccount(){
 
 
         })
+        
 
         if(response.status === 200){
             //TODO rerout to login page 
+            window.location.href = response.url;
         }
+        else if(response.status === 500){
+                window.alert("The user already exists!");
+                
+            }
         else{
             //TODO: display error
             const required = document.getElementById("error");
@@ -60,7 +66,7 @@ function CreateAccount(){
         }
 
 
-        console.log("made it through")
+        
 
 
 

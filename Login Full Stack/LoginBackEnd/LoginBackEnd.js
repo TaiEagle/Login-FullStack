@@ -57,17 +57,18 @@ app.post('/CreateAccount', async (req, res) => {
     
   }
   else{
-    console.log(firstName)
-    console.log(lastName)
-    console.log(email)
-    console.log(password)
-    console.log(req.body.firstNameJson)
-    console.log(req.body.lastNameJson)
-    console.log(req.body.emailJson)
-    console.log(req.body.passwordJson)
+
   //create new user 
   let response = await authObj.createUser(firstName, lastName, email, password);
-  console.log(response)
+  if(response === false){
+    res.sendStatus(500);
+  }
+  else{
+    res.redirect('/Login')
+  }
+  //redirect back to the login
+  //res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  
   }
 
 

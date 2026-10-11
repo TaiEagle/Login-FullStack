@@ -37,11 +37,11 @@ export default class Auth{
             if(await DB_Driver.userExists(emailStr) === false){
 
                 let driverSucess = await DB_Driver.insertNewUser(user);
-                console.log("complete")
+                
             }
             else{
-                console.log("returned")
-                return;
+                
+                return false;
             }
             
 
