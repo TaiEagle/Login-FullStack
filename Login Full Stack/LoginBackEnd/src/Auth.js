@@ -149,4 +149,43 @@ export default class Auth{
         }
 
     }
+
+
+
+    //This method produces a one time security code to change the password
+    secuirtyCode(){
+
+
+    }
+
+
+
+    //This method checks if a email exists and send a one time security code to the email
+    sendSecuirtyCode(){
+
+
+    }
+
+
+
+    //This method authenticatets the one time code 
+    authenticateCode(){
+
+    }
+
+
+    //This method changes the password
+    changePassword(){
+
+        
+    }
+
+
+
+
+
+
+
+
+
 }
