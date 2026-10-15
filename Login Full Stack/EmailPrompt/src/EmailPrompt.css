@@ -18,7 +18,7 @@
 }
 
 button{
-    margin-top: 5%;
+    margin-top: 2%;
 
     border-radius: 15px;
 
@@ -33,4 +33,19 @@ h1{
     text-align: center;
     margin-top: 0%;
     margin-bottom: 2%;
+}
+#doesntexist{
+    color: red;
+    margin: 0%;
+    margin-top: 2%;
+    visibility: hidden;
+}
+#emptyField{
+    color: red;
+    margin: 0%;
+    margin-top: 2%;
+    visibility: hidden;
+}
+span{
+    color: red;
 }
