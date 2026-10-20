@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 const { sign, verify } = jwt;
 
 
+import {Resend} from 'resend'
+
 export default class Auth{
 //class Auth{
     constructor(){
@@ -161,7 +163,29 @@ export default class Auth{
 
 
     //This method checks if a email exists and send a one time security code to the email
-    sendSecuirtyCode(){
+    sendSecuirtyCode(email){
+
+        const DB_Driver = new DB();
+
+        if(DB_Driver.userExists(email) === true){
+            //create secuirty code
+            let code = this.secuirtyCode()
+
+            //send the email
+            const resend = new Resend('re_NU8c28iQ_PExvRvtbr9MzzzwyThNWj9Fc');
+
+            resend.emails.send({
+                from: 'tai.osborne00@gmail.com',
+                to: email,
+                subject: 'Hello World',
+                html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
+                });
+                return true;
+            //return true
+        }
+        else{
+            return false; 
+        }
 
 
     }

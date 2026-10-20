@@ -5,6 +5,8 @@ import express from 'express';
 //const auth = require("./src/Auth");
 import auth from "./src/Auth.js";
 
+
+
 const __dirname = import.meta.dirname;
 const app = express();
 const port = 3000;
@@ -85,6 +87,25 @@ app.post('/CreateAccount', async (req, res) => {
 app.get('/ChangePassword', (req, res) =>{
   res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
 })
+
+app.post('/ChangePasswrod', (req, res) =>{
+
+  let email = String(req.body.Email);
+
+  const authObj = new auth();
+
+  //send the secuirty code to the user if the user exists
+   if(authObj.sendSecuirtyCode(email) === true){
+    //send web page 
+   }
+   else{
+    //send an error code (user doesn't exist)
+   }
+} )
+
+
+
+
 
 //login attempt
 app.post('/Login', async (req, res) => {
