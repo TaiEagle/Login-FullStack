@@ -4,8 +4,8 @@ import argon2 from "argon2";
 //const argon2 = require("argon2")
 import jwt from "jsonwebtoken";
 const { sign, verify } = jwt;
-import { Resend } from 'resend';
-
+import nodemailer from "nodemailer"
+import dotenv from "dotenv"
 
 
 export default class Auth{
@@ -165,21 +165,47 @@ export default class Auth{
     //This method checks if a email exists and send a one time security code to the email
     async sendSecuirtyCode(email){
 
+
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        dotenv.config()
         const DB_Driver = new DB();
         console.log("1")
         if(await DB_Driver.userExists(email) === true){
             //create secuirty code
             //let code = this.secuirtyCode()
-            console.log(process.env.ResendAPIKey)
+            
             //send the email
-            const resend = new Resend(process.env.ResendAPIKey);
 
-                resend.emails.send({
-                from: 'dakotaosborne532@gmail.com',
-                to: 'dakotaosborne532@gmail.com',
-                subject: 'Hello World',
-                html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
+
+            // Create a transporter using SMTP
+            const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+            auth: {
+                user: process.env.userName,
+                pass: process.env.pwd,
+            },
+            });
+
+
+            // send the msg
+            try {
+                const info = await transporter.sendMail({
+                    from: 'dakotaosborne532@gmail.com', // sender address
+                    to: "dakotaosborne532@gmail.com", // list of recipients
+                    subject: "Hello", // subject line
+                    text: "Hello world?", // plain text body
+                    html: "<b>Hello world?</b>", // HTML body
                 });
+
+                console.log("Message sent: %s", info.messageId);
+                // Preview URL is only available when using an Ethereal test account
+                console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+            } catch (err) {
+                console.error("Error while sending mail:", err);
+                }
+               
 
                 console.log("complete")
             return true

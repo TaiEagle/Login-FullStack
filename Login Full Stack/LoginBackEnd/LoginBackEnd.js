@@ -90,7 +90,7 @@ app.get('/ChangePassword', (req, res) =>{
 
 app.post('/ChangePassword', (req, res) =>{
   console.log("ran")
-
+  
   let email = String(req.body.Email);
 
   const authObj = new auth();
