@@ -172,7 +172,7 @@ export default class Auth{
             let code = this.secuirtyCode()
 
             //send the email
-            const resend = new Resend('re_NU8c28iQ_PExvRvtbr9MzzzwyThNWj9Fc');
+            
 
             resend.emails.send({
                 from: 'tai.osborne00@gmail.com',
