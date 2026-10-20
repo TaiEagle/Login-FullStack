@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 //create account assets
 app.use(express.static(path.join(__dirname, 'createAccount')));
 //change password assets
-app.use(express.static(path.join(__dirname, 'changePassword')));
+app.use(express.static(path.join(__dirname, 'emailPrompt')));
 
 
 
@@ -85,15 +85,17 @@ app.post('/CreateAccount', async (req, res) => {
 
 //Change password page
 app.get('/ChangePassword', (req, res) =>{
-  res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
+  res.sendFile(path.join(__dirname, 'emailPrompt', 'index.html'));
 })
 
-app.post('/ChangePasswrod', (req, res) =>{
+app.post('/ChangePassword', (req, res) =>{
+  console.log("ran")
 
   let email = String(req.body.Email);
 
   const authObj = new auth();
 
+  console.log(email);
   //send the secuirty code to the user if the user exists
    if(authObj.sendSecuirtyCode(email) === true){
     //send web page 

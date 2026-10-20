@@ -4,7 +4,7 @@ import argon2 from "argon2";
 //const argon2 = require("argon2")
 import jwt from "jsonwebtoken";
 const { sign, verify } = jwt;
-
+import { Resend } from 'resend';
 
 
 
@@ -163,20 +163,29 @@ export default class Auth{
 
 
     //This method checks if a email exists and send a one time security code to the email
-    sendSecuirtyCode(email){
+    async sendSecuirtyCode(email){
 
         const DB_Driver = new DB();
-
-        if(DB_Driver.userExists(email) === true){
+        console.log("1")
+        if(await DB_Driver.userExists(email) === true){
             //create secuirty code
-            let code = this.secuirtyCode()
-
+            //let code = this.secuirtyCode()
+            console.log(process.env.ResendAPIKey)
             //send the email
-            
+            const resend = new Resend(process.env.ResendAPIKey);
 
-            //return true
+                resend.emails.send({
+                from: 'dakotaosborne532@gmail.com',
+                to: 'dakotaosborne532@gmail.com',
+                subject: 'Hello World',
+                html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
+                });
+
+                console.log("complete")
+            return true
         }
         else{
+            console.log("false")
             return false; 
         }
 

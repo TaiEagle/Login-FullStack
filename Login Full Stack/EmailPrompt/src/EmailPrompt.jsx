@@ -9,12 +9,12 @@ function EmailPrompt (){
         e.preventDefault();
 
 
-         const URL = '';
+         const URL = "http://localhost:3000/ChangePassword";
 
 
          //get the input data
         let form = e.target;
-        let formData = new FormData();
+        let formData = new FormData(form);
 
 
         let email = formData.get("email");
@@ -24,13 +24,18 @@ function EmailPrompt (){
         if(email === null){
             let element = document.getElementById("emptyField");
             element.style.visibility = "visible";
+            console.log("email is null")
             
         }
         else{
+
+
+            let postBody = JSON.stringify({Email: email});
+            console.log(postBody);
             const response = await fetch(URL, {
                 method: "POST",
-                headers: {"content-type": "application-json"},
-                body: JSON.stringify({Email: email})
+                headers: {"Content-Type": "application/json"},
+                body: postBody
             });
 
             //response is ok
@@ -66,7 +71,7 @@ function EmailPrompt (){
                     
                     <input type='email' name='email'></input>
 
-                    <h6 id='doesntexist'>Email does not exist</h6>
+                    <h6 id='doesntExist'>Email does not exist</h6>
                     <h6 id='emptyField'>Enter all required fields</h6>
 
 
