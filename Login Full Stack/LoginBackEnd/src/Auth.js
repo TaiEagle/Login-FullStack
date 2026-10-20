@@ -174,13 +174,6 @@ export default class Auth{
             //send the email
             
 
-            resend.emails.send({
-                from: 'tai.osborne00@gmail.com',
-                to: email,
-                subject: 'Hello World',
-                html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
-                });
-                return true;
             //return true
         }
         else{
