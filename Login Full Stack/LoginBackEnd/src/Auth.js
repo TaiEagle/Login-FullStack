@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 const { sign, verify } = jwt;
 
 
-import {Resend} from 'resend'
+
 
 export default class Auth{
 //class Auth{
