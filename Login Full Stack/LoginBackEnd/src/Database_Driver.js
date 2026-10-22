@@ -122,4 +122,25 @@ export default class DB {
     
     }
 
+
+    async InsertOneTimeCode(Email, code){
+        //connect to database
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        await myColl.insertOne({email: Email, passcode: code, expiresAt: 5* 60 * 1000});
+
+    }
+
+    async getSecret(){
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        return await myColl.findOne({name: "secret"})
+
+    }
+
+
 }

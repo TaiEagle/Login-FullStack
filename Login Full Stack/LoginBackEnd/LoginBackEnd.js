@@ -95,6 +95,7 @@ app.post('/ChangePassword', (req, res) =>{
 
   const authObj = new auth();
 
+  authObj.secuirtyCode();
   console.log(email);
   //send the secuirty code to the user if the user exists
    if(authObj.sendSecuirtyCode(email) === true){
@@ -104,6 +105,39 @@ app.post('/ChangePassword', (req, res) =>{
     //send an error code (user doesn't exist)
    }
 } )
+
+
+//this route handles the one time secuirty code to change a password 
+app.get('/OneTimeCode', (req, res) => {
+  res.sendFile(__dirname, "OneTimeCode", "index.html");
+})
+app.post("/OneTimeCode", async (req, res) =>{
+
+  //authenticate code 
+  const authObj = new auth();
+
+  try{
+    //cast to int 
+    let code = parseInt(req.body.code);
+  }
+  catch(e){
+
+  }
+  
+
+  let verify = await authObj.authenticateCode(code);
+
+  //if verified 
+  if (verify === true){
+    //change password 
+  }
+  //not verified 
+  else{
+    res.sendStatus(403);
+  }
+
+
+})
 
 
 

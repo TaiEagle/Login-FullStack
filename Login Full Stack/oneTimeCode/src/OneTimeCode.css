@@ -1,0 +1,51 @@
+.main{
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    margin-left:35.5% ;
+    margin-top: 10%;
+
+    padding: 2% 2% 2% 2%;
+
+
+    border: 2px solid grey;
+    border-radius: 15px;
+
+}
+.input{
+    display: flex;
+    flex-direction: column;
+}
+
+button{
+    margin-top: 2%;
+
+    border-radius: 15px;
+
+    background-color: #841617
+}
+
+button:hover{
+    background-color: #65000B;
+    cursor: pointer;
+}
+h1{
+    text-align: center;
+    margin-top: 0%;
+    margin-bottom: 2%;
+}
+#invalid{
+    color: red;
+    margin: 0%;
+    margin-top: 2%;
+    visibility: hidden;
+}
+#emptyField{
+    color: red;
+    margin: 0%;
+    margin-top: 2%;
+    visibility: hidden;
+}
+span{
+    color: red;
+}

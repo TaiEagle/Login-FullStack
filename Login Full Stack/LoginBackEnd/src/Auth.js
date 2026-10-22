@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 const { sign, verify } = jwt;
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
+import {OTP} from 'otplib'
 
 
 export default class Auth{
@@ -155,8 +156,19 @@ export default class Auth{
 
 
     //This method produces a one time security code to change the password
-    secuirtyCode(){
+    async secuirtyCode(){
+        const otp = new OTP();
+        //create secret
+        //const secret = otp.generateSecret();
+        const DB_Driver = new DB();
+        let secretObj = await DB_Driver.getSecret();
+        let secret = secretObj.secret;
+        console.log("secret: " + secret);
+        //create code 
+        const token = await otp.generate({secret})
 
+        console.log("Token: " + token);
+        return token;
 
     }
 
@@ -166,37 +178,47 @@ export default class Auth{
     async sendSecuirtyCode(email){
 
 
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        
         dotenv.config()
         const DB_Driver = new DB();
-        console.log("1")
+        
         if(await DB_Driver.userExists(email) === true){
             //create secuirty code
             //let code = this.secuirtyCode()
             
             //send the email
-
+       
 
             // Create a transporter using SMTP
+            
             const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 587,
             secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
             auth: {
-                user: process.env.userName,
+                user: process.env.emailstring,
                 pass: process.env.pwd,
             },
+            tls: {
+                rejectUnauthorized: false
+            }
             });
 
+        
+            //create one time secuirty code 
+            let oneTimeCode = await this.secuirtyCode();
+            let emailText = "Your one time code is: " + oneTimeCode;
+            //add it to the database 
+            DB_Driver.InsertOneTimeCode(email, oneTimeCode);
 
             // send the msg
             try {
                 const info = await transporter.sendMail({
-                    from: 'dakotaosborne532@gmail.com', // sender address
-                    to: "dakotaosborne532@gmail.com", // list of recipients
-                    subject: "Hello", // subject line
-                    text: "Hello world?", // plain text body
-                    html: "<b>Hello world?</b>", // HTML body
+                    from: process.env.emailstring, // sender address
+                    to: email, // list of recipients
+                    subject: "One time secuirty code", // subject line
+                    text: emailText, // plain text body
+                    
                 });
 
                 console.log("Message sent: %s", info.messageId);
@@ -221,9 +243,25 @@ export default class Auth{
 
 
     //This method authenticatets the one time code 
-    authenticateCode(){
+    async authenticateCode(code){
+        const otp = new OTP();
+        const DB_Driver = new DB();
 
-    }
+        let secret = DB_Driver.getSecret();
+
+        let verify = await otp.verify({secret, code});
+
+        if(verify.valid){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+
+
+
+}
 
 
     //This method changes the password
