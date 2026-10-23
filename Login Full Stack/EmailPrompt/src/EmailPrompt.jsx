@@ -41,6 +41,7 @@ function EmailPrompt (){
             //response is ok
             if(response.status === 200){
                 //TODO go to new page
+                window.location.href = response.url
             }
             //response is not ok
             else{

@@ -163,11 +163,11 @@ export default class Auth{
         const DB_Driver = new DB();
         let secretObj = await DB_Driver.getSecret();
         let secret = secretObj.secret;
-        console.log("secret: " + secret);
+        //console.log("secret: " + secret);
         //create code 
         const token = await otp.generate({secret})
 
-        console.log("Token: " + token);
+        //console.log("Token: " + token);
         return token;
 
     }
@@ -188,7 +188,7 @@ export default class Auth{
             
             //send the email
        
-
+            console.log("user exists")
             // Create a transporter using SMTP
             
             const transporter = nodemailer.createTransport({
@@ -209,7 +209,7 @@ export default class Auth{
             let oneTimeCode = await this.secuirtyCode();
             let emailText = "Your one time code is: " + oneTimeCode;
             //add it to the database 
-            DB_Driver.InsertOneTimeCode(email, oneTimeCode);
+            await DB_Driver.InsertOneTimeCode(email, oneTimeCode);
 
             // send the msg
             try {
@@ -221,16 +221,18 @@ export default class Auth{
                     
                 });
 
-                console.log("Message sent: %s", info.messageId);
+                //console.log("Message sent: %s", info.messageId);
                 // Preview URL is only available when using an Ethereal test account
-                console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+                //console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
+                console.log("complete");
+                return true;
             } catch (err) {
                 console.error("Error while sending mail:", err);
                 }
                
 
-                console.log("complete")
-            return true
+
         }
         else{
             console.log("false")
@@ -244,17 +246,20 @@ export default class Auth{
 
     //This method authenticatets the one time code 
     async authenticateCode(code){
+        console.log("verifyFunction")
         const otp = new OTP();
         const DB_Driver = new DB();
-
-        let secret = DB_Driver.getSecret();
-
+        console.log("getSecret")
+        let secret = await DB_Driver.getSecret();
+        console.log("verify")
         let verify = await otp.verify({secret, code});
-
+        console.log("verify2")
         if(verify.valid){
+            console.log("true")
             return true;
         }
         else{
+            console.log("false")
             return false;
         }
 

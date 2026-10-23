@@ -19,7 +19,7 @@ function OneTimeCode(){
         
 
         //if the email is empty 
-        if(email === null){
+        if(code === null){
             let element = document.getElementById("emptyField");
             element.style.visibility = "visible";
             console.log("email is null")
@@ -55,7 +55,7 @@ function OneTimeCode(){
     return    (     <>
         <div className='main'>
 
-            <h1>Enter your email </h1>
+            <h1>Enter code </h1>
         
             <form onSubmit={submit}>
 

@@ -18,6 +18,8 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'createAccount')));
 //change password assets
 app.use(express.static(path.join(__dirname, 'emailPrompt')));
+//one time code assets
+app.use(express.static(path.join(__dirname, 'OneTimeCode')));
 
 
 
@@ -88,7 +90,7 @@ app.get('/ChangePassword', (req, res) =>{
   res.sendFile(path.join(__dirname, 'emailPrompt', 'index.html'));
 })
 
-app.post('/ChangePassword', (req, res) =>{
+app.post('/ChangePassword', async (req, res) =>{
   console.log("ran")
   
   let email = String(req.body.Email);
@@ -96,10 +98,17 @@ app.post('/ChangePassword', (req, res) =>{
   const authObj = new auth();
 
   authObj.secuirtyCode();
-  console.log(email);
+  //console.log(email);
   //send the secuirty code to the user if the user exists
-   if(authObj.sendSecuirtyCode(email) === true){
+  console.log("send email")
+  let sent = await authObj.sendSecuirtyCode(email);
+  console.log("email sent")
+  console.log(sent);
+   if( sent === true){
     //send web page 
+    console.log("send to new");
+    res.redirect('/OneTimeCode');
+
    }
    else{
     //send an error code (user doesn't exist)
@@ -109,32 +118,41 @@ app.post('/ChangePassword', (req, res) =>{
 
 //this route handles the one time secuirty code to change a password 
 app.get('/OneTimeCode', (req, res) => {
-  res.sendFile(__dirname, "OneTimeCode", "index.html");
+  res.sendFile(path.join(__dirname, "OneTimeCode", "index.html"));
 })
 app.post("/OneTimeCode", async (req, res) =>{
-
+  console.log("start")
   //authenticate code 
   const authObj = new auth();
 
   try{
     //cast to int 
-    let code = parseInt(req.body.code);
+    console.log("parse int")
+    let code = parseInt(req.body.Code);
+    console.log(code)
+    console.log("parse int2")
+    //verify the code 
+    let verified = await authObj.authenticateCode(code);
+    console.log("verify")
+    if(verified === true){
+      console.log("verified")
+      //send the code 
+      //change password 
+      //app.sendJson({oneTimeCode: code});
+      // set to update password html 
+      //app.sendFile(__dirname);
+    }
+    else{
+       res.sendStatus(403);
+    }
+
   }
   catch(e){
 
   }
   
 
-  let verify = await authObj.authenticateCode(code);
 
-  //if verified 
-  if (verify === true){
-    //change password 
-  }
-  //not verified 
-  else{
-    res.sendStatus(403);
-  }
 
 
 })
