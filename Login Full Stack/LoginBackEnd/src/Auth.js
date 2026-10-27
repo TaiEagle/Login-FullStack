@@ -163,7 +163,8 @@ export default class Auth{
         const DB_Driver = new DB();
         let secretObj = await DB_Driver.getSecret();
         let secret = secretObj.secret;
-        //console.log("secret: " + secret);
+
+        console.log("secret: " + secret);
         //create code 
         const token = await otp.generate({secret})
 
@@ -188,7 +189,7 @@ export default class Auth{
             
             //send the email
        
-            console.log("user exists")
+            
             // Create a transporter using SMTP
             
             const transporter = nodemailer.createTransport({
@@ -225,7 +226,7 @@ export default class Auth{
                 // Preview URL is only available when using an Ethereal test account
                 //console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 
-                console.log("complete");
+                
                 return true;
             } catch (err) {
                 console.error("Error while sending mail:", err);
@@ -246,22 +247,34 @@ export default class Auth{
 
     //This method authenticatets the one time code 
     async authenticateCode(code){
-        console.log("verifyFunction")
+        try{
+        
         const otp = new OTP();
         const DB_Driver = new DB();
-        console.log("getSecret")
-        let secret = await DB_Driver.getSecret();
-        console.log("verify")
+        
+        let secretObj = await DB_Driver.getSecret();
+        let secretString = secretObj.oneTimeCodeSecret;
+
+        let secret = Uint8Array.from(secretString)
+        console.log(secret)
         let verify = await otp.verify({secret, code});
-        console.log("verify2")
-        if(verify.valid){
+        console.log("after verify")
+        console.log(typeof(verify))
+        console.log(verify.valid)
+        if(verify.valid === true){
             console.log("true")
             return true;
         }
         else{
-            console.log("false")
+            console.log("false1")
             return false;
         }
+    
+    }
+    catch(e){
+        console.error(e)
+        return false;
+    }
 
 
 

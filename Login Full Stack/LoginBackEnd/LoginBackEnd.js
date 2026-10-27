@@ -121,19 +121,19 @@ app.get('/OneTimeCode', (req, res) => {
   res.sendFile(path.join(__dirname, "OneTimeCode", "index.html"));
 })
 app.post("/OneTimeCode", async (req, res) =>{
-  console.log("start")
+  
   //authenticate code 
   const authObj = new auth();
 
   try{
     //cast to int 
-    console.log("parse int")
-    let code = parseInt(req.body.Code);
+    
+    let code = req.body.Code;
     console.log(code)
-    console.log("parse int2")
+    
     //verify the code 
     let verified = await authObj.authenticateCode(code);
-    console.log("verify")
+    
     if(verified === true){
       console.log("verified")
       //send the code 
@@ -143,6 +143,7 @@ app.post("/OneTimeCode", async (req, res) =>{
       //app.sendFile(__dirname);
     }
     else{
+      console.log("false2")
        res.sendStatus(403);
     }
 

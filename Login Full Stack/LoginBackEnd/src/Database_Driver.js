@@ -129,7 +129,7 @@ export default class DB {
         //connect to collection
         const myColl = myDB.collection("ChangePasswordMFA");
 
-        await myColl.insertOne({email: Email, passcode: code, expiresAt: 5* 60 * 1000});
+        await myColl.insertOne({email: Email, passcode: code}, { expiresAt: 5* 60 * 1000} );
 
     }
 
