@@ -155,6 +155,9 @@ export default class Auth{
 
 
 
+
+
+
     //This method produces a one time security code to change the password
     async secuirtyCode(){
         const otp = new OTP();
