@@ -17,8 +17,19 @@ export default class Auth{
 
 
 
-    //This method creates a user. Taking in user input, a user name and password is added
+    /* This method creates a user. Taking in user input, a user name and password is added
     //to the database 
+
+    Parameter 1: firstName --- String
+    Parameter 2: lastName --- String
+    Parameter 3: email --- String 
+    Parameter 4: password --- String 
+
+    Returns a boolean --- true if the user was created, false if the user was not created succesfully
+
+
+    */
+    
     async createUser(firstName, lastName, email, password){
         //console.log("execute 3");
         const DB_Driver = await new DB();
@@ -35,68 +46,75 @@ export default class Auth{
 
             //create password hash
             const hash = await argon2.hash(passwordStr)
+            //Create JSON object to store in the database 
             const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": email, "password": hash} ;
 
+            //If the user does not exist 
             if(await DB_Driver.userExists(emailStr) === false){
-
+                //insert account details 
                 let driverSucess = await DB_Driver.insertNewUser(user);
+
+                //if the database insertion was successful retun true 
+                if( await driverSucess == true){
+            
+                    return true;
+                    }
+                //If it was not succesful return false.
+                else{
+                    
+                        return false;
+                    }
                 
             }
+            //If the user does exist don't create the account
             else{
                 
                 return false;
             }
             
 
-            if( await driverSucess == true){
-            //console.log(driverSucess)
-            //console.log("reutnred true")
-            return true;
-            }
-            else{
-                //console.log(driverSucess)
-                //console.log("reutnred false")
-                return false;
-            }
+
         }
         catch(error){
-
+            return false;
         }
 
 
-        //create object to put into database
-        //const user = {"userName": userName, "password": hash}
-        //console.log("execute 4");
-
         
-        //console.log(driverSucess)
-
-        //console.log("execute 5");
     }
 
 
     /*
     //This method authenticates a user 
+
+    Parameter 1: userName --- String
+    Parameter 2: password --- String 
+
+    Returns a boolean --- true indicates the user is authenticated, flase indicates the user is not authenticated 
     */
    async authenticate(userName, passWord){
 
+        //Data base driver object 
         let DB_Driver = await new DB();
-        //create object to put into database
-        
+
+        //get the user account information 
         let user = await DB_Driver.getUser(userName);
 
-        //console.log(user);
+        
 
         //authenticate user 
         try{
+            //If the hashed password matches the stored hashed password
             if(await argon2.verify(user.password, passWord)){
-                //console.log("reutrned true")
+                
                 //if the password is true, send a token
+                //#TODO send token 
                 const token = this.createToken(userName)
                 return true;
             }
+            //Not authenticated
             else{
-                //console.log("reutrned false")
+                
                 return false;
             }
         }
@@ -104,26 +122,29 @@ export default class Auth{
             return false;
         }
 
-/*
-        if(user.password == passWord){
-            return true;
-        }
-        else{
-            return false;
-        }
-            */
+
    }
 
+
+   /*
+   This method is used ot delete a user from the database
+   Parameter 1: userName --- String 
+   */
     async deleteUser(userName){
+        
         const DB_Driver = await new DB();
+        //Delete user
         await DB_Driver.deleteUser(userName);
     }
 
+    /*
+    This method creates a JWT to send the user 
+    Parameter 1: userName --- String 
 
-    //This method creates a JWT to send the user 
-    
-
+    returns a string that contains the token 
+    */
     createToken(userName){
+        //create token
         const token = jwt.sign({name: userName}, "5^jf8eIxF", {expiresIn: "1h"});
         return token;
     }
@@ -165,7 +186,7 @@ export default class Auth{
         //const secret = otp.generateSecret();
         const DB_Driver = new DB();
         let secretObj = await DB_Driver.getSecret();
-        let secret = secretObj.secret;
+        let secret = secretObj.oneTimeCodeSecret;
 
         console.log("secret: " + secret);
         //create code 
@@ -249,18 +270,19 @@ export default class Auth{
 
 
     //This method authenticatets the one time code 
-    async authenticateCode(code){
+    async authenticateCode(token){
         try{
         
         const otp = new OTP();
         const DB_Driver = new DB();
         
+        //Get secret
         let secretObj = await DB_Driver.getSecret();
-        let secretString = secretObj.oneTimeCodeSecret;
+        let secret = secretObj.oneTimeCodeSecret;
 
-        let secret = Uint8Array.from(secretString)
-        console.log(secret)
-        let verify = await otp.verify({secret, code});
+        //let secret = Uint8Array.from(secretString)
+        //console.log(secret)
+        let verify = await otp.verify({secret, token});
         console.log("after verify")
         console.log(typeof(verify))
         console.log(verify.valid)
