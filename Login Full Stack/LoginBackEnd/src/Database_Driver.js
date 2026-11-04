@@ -7,20 +7,22 @@ export default class DB {
     constructor(){
         //connect to database
         this.client = new MongoClient("mongodb://localhost:27017");
-        //await client.connect();
-        //console.log("execute 6");
+        
         this.client.connect();
-        //console.log("execute 7");
+        
     }
 
 
 
 
-        //This method determines if a username exists in the databse 
-        //Parameter 1: String --- userName
-        //Returns a boolean
+        /*
+        This method determines if a username exists in the databse 
+        Parameter 1: email --- String
+
+        Returns a boolean
+        */
     async userExists(email){
-        //console.log("execute 8");
+        
 
 
 
@@ -29,50 +31,48 @@ export default class DB {
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
-        //console.log("execute 9");
+        
 
-        //const query = {"userName": userName}; don't use
-        //if the number of documents is greater than 0 (it exists)
-        //if(await myColl.countDocuments({"userName": String(userName)}) > 0){
-
-        //console.log(await myColl.findOne({"userName": userName}))
-
-        if(await myColl.findOne({"email": String(email)}) != null ){
-            //console.log("returned true")
+        //query the database to determine is a document exists with that email 
+        try{
+            if(await myColl.findOne({"email": String(email)}) != null ){
+            //user found
             return true;
         }
         else{
-            //console.log("returned false")
+            //user does not exist
+            return false;
+        }}
+        
+        catch(e){
+            //user does not exits 
             return false;
         }
     }
 
 
 
-    //This method inserts new user account in the database
-    //Parameter 1: JSON --- docs
-    //returns nothing 
-    async insertNewUser(docs){
-        //check if userName exists
+    /*
+    This method inserts new user account in the database
+    Parameter 1: docs --- JSON
 
-        //console.log("execute 88");
+    returns a boolean 
+    */
+    async insertNewUser(docs){
 
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
-        //console.log("execute 99");
-        //if the user does not exist
-        
+        //check if the user does not exist
         if(await this.userExists(docs.email) == false){
+
             //insert document into the databse 
-            //console.log("exectued");
-            //TODO:: change password parameter
-            const result = myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password),  });
+            const result = myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password)  });
 
             
-            //console.log(myColl.insertOne({"userName": String(docs.userName), "password": String(docs.password)  }))
+            
             if((await result).acknowledged == true){
                 //console.log(result);
                 //console.log("returned true");

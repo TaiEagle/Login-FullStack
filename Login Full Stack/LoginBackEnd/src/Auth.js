@@ -149,7 +149,15 @@ export default class Auth{
         return token;
     }
 
-    //This method verifies a token from user input
+
+
+    /*
+    This method verifies a token from user input
+    Parameter 1: userToken --- String
+    Parameter 2: userName --- String 
+
+    returns a list containing a boolean in slot 0 determining if it was verified or not and the String userName embedded in the token in slot 1 
+    */
     verifyToken(userToken, userName){
         
         
@@ -161,14 +169,20 @@ export default class Auth{
             let token = String(userToken);
             //verify the token
             let decoded = jwt.verify(token, "5^jf8eIxF");
-            //console.log(decoded.name);
+            //if the user name provided matches the user name used to login 
             if(decoded.name === userName){
+                //return true and the user name
                 return [true, decoded.name];
             }
-            throw new error("wrong userName in token");
+            //the wrong userName was provided 
+            else{
+                
+                throw new error("wrong userName in token");
+            }
+            
         }
         catch(e){
-            //console.log(e);
+            
             return [false, null];
         }
 
@@ -178,40 +192,53 @@ export default class Auth{
 
 
 
+    /*
+    This method produces a one time security code to change the password
 
-    //This method produces a one time security code to change the password
+    returns the one time code as a string 
+    */
     async secuirtyCode(){
         const otp = new OTP();
         //create secret
         //const secret = otp.generateSecret();
+        //secret is currently held in the database
+
+
+        //get secret 
         const DB_Driver = new DB();
         let secretObj = await DB_Driver.getSecret();
         let secret = secretObj.oneTimeCodeSecret;
 
-        console.log("secret: " + secret);
-        //create code 
+        
+        //create one time code 
         const token = await otp.generate({secret})
 
-        //console.log("Token: " + token);
+        
         return token;
 
     }
 
 
 
+    /*
     //This method checks if a email exists and send a one time security code to the email
+
+    Parameter 1: email
+
+    returns a boolean 
+    */
     async sendSecuirtyCode(email){
 
 
-        
+        //use .env file for private information 
         dotenv.config()
         const DB_Driver = new DB();
         
+        //check if the user exists
         if(await DB_Driver.userExists(email) === true){
-            //create secuirty code
-            //let code = this.secuirtyCode()
             
-            //send the email
+            
+            
        
             
             // Create a transporter using SMTP
@@ -232,11 +259,12 @@ export default class Auth{
         
             //create one time secuirty code 
             let oneTimeCode = await this.secuirtyCode();
+            //text to be sent via email
             let emailText = "Your one time code is: " + oneTimeCode;
             //add it to the database 
             await DB_Driver.InsertOneTimeCode(email, oneTimeCode);
 
-            // send the msg
+            // send the email
             try {
                 const info = await transporter.sendMail({
                     from: process.env.emailstring, // sender address
@@ -253,14 +281,14 @@ export default class Auth{
                 
                 return true;
             } catch (err) {
-                console.error("Error while sending mail:", err);
+                //console.error("Error while sending mail:", err);
                 }
                
 
 
         }
         else{
-            console.log("false")
+            
             return false; 
         }
 
@@ -268,8 +296,12 @@ export default class Auth{
     }
 
 
-
+    /*
     //This method authenticatets the one time code 
+    Parameter 1: token 
+
+    returns a boolean 
+    */
     async authenticateCode(token){
         try{
         
@@ -280,24 +312,23 @@ export default class Auth{
         let secretObj = await DB_Driver.getSecret();
         let secret = secretObj.oneTimeCodeSecret;
 
-        //let secret = Uint8Array.from(secretString)
-        //console.log(secret)
+        
+        //verify the token is valid 
         let verify = await otp.verify({secret, token});
-        console.log("after verify")
-        console.log(typeof(verify))
-        console.log(verify.valid)
+        
+        //if the token is valid 
         if(verify.valid === true){
-            console.log("true")
+            
             return true;
         }
         else{
-            console.log("false1")
+            
             return false;
         }
     
     }
     catch(e){
-        console.error(e)
+        
         return false;
     }
 
