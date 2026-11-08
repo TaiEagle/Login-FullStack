@@ -35,19 +35,52 @@ app.get('/Login', (req, res) => {
 
 
 
+//login attempt
+app.post('/Login', async (req, res) => {
+
+  try{
+
+  //create auth object 
+  const authObj = new auth();
+
+  //ensure user input is a string
+  let Email = String(req.body.JSON_userName);
+  let password = String(req.body.JSON_password);
+  //authenticate user
+  let authenticated = await authObj.authenticate(Email, password);
+  //if the use is authenticated send jwt token 
+  if( authenticated === true){
+    let token = authObj.createToken(req.body.JSON_userName);
+    
+    res.send(token)
+  }
+  else{
+    
+    //not authenticated
+    res.sendStatus(401);
+  }
+  }
+  catch(e){
+    res.sendStatus(401);
+  }
+
+
+})
+
+
 
 
 //Create account page
 app.get('/CreateAccount', (req, res) =>{
   res.sendFile(path.join(__dirname, 'createAccount', 'index.html'));
-  console.log("send create account html");
 })
 
 
 //create account request 
 app.post('/CreateAccount', async (req, res) => {
   
-  console.log("create account started")
+  try{
+  //ensure user input is a string
   const authObj = new auth();
   let firstName = String(req.body.firstNameJson);
   let lastName = String(req.body.lastNameJson);
@@ -64,18 +97,23 @@ app.post('/CreateAccount', async (req, res) => {
 
   //create new user 
   let response = await authObj.createUser(firstName, lastName, email, password);
+  //if use creation failed send 500 status 
   if(response === false){
     res.sendStatus(500);
   }
+  //else return to the login page
   else{
+
     res.redirect('/Login')
   }
-  //redirect back to the login
-  //res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+ 
   
   }
 
-
+  }
+  catch(e){
+    res.sendStatus(500);
+  }
   
 
 })
@@ -90,29 +128,35 @@ app.get('/ChangePassword', (req, res) =>{
   res.sendFile(path.join(__dirname, 'emailPrompt', 'index.html'));
 })
 
+//Change password request
 app.post('/ChangePassword', async (req, res) =>{
-  console.log("ran")
   
+
+  try{
+
+  
+  //ensure user input is a String
   let email = String(req.body.Email);
 
   const authObj = new auth();
 
-  authObj.secuirtyCode();
-  //console.log(email);
   //send the secuirty code to the user if the user exists
-  console.log("send email")
   let sent = await authObj.sendSecuirtyCode(email);
-  console.log("email sent")
-  console.log(sent);
+  
    if( sent === true){
     //send web page 
-    console.log("send to new");
+    
     res.redirect('/OneTimeCode');
 
    }
    else{
     //send an error code (user doesn't exist)
+
    }
+  }
+  catch(e){
+
+  }
 } )
 
 
@@ -120,30 +164,32 @@ app.post('/ChangePassword', async (req, res) =>{
 app.get('/OneTimeCode', (req, res) => {
   res.sendFile(path.join(__dirname, "OneTimeCode", "index.html"));
 })
+
+//one time code request 
 app.post("/OneTimeCode", async (req, res) =>{
   
   //authenticate code 
   const authObj = new auth();
 
   try{
-    //cast to int 
+     
+    //ensure user input is a string
+    let code = String(req.body.Code);
     
-    let code = req.body.Code;
-    console.log(code)
     
     //verify the code 
     let verified = await authObj.authenticateCode(code);
     
     if(verified === true){
-      console.log("verified")
+      
       //send the code 
       //change password 
       //app.sendJson({oneTimeCode: code});
-      // set to update password html 
+      //send change password page
       //app.sendFile(__dirname);
     }
     else{
-      console.log("false2")
+      
        res.sendStatus(403);
     }
 
@@ -162,28 +208,7 @@ app.post("/OneTimeCode", async (req, res) =>{
 
 
 
-//login attempt
-app.post('/Login', async (req, res) => {
-  console.log("executed");
-  const authObj = new auth();
-  //console.log(typeof(req.body.JSON_userName));
-  //console.log(typeof(req.body.JSON_password));
-  let authenticated = await authObj.authenticate(req.body.JSON_userName, req.body.JSON_password);
-  if( authenticated === true){
-    let token = authObj.createToken(req.body.JSON_userName);
-    //console.log(token)
-    res.send(token)
-  }
-  else{
-    
-    console.log("not authenticated")
-    res.sendStatus(401);
-  }
 
-
-
-
-})
 
 
 

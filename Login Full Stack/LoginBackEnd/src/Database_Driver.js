@@ -5,10 +5,15 @@ import {MongoClient} from "mongodb";
 export default class DB {
 //class DB {
     constructor(){
+        try{
         //connect to database
         this.client = new MongoClient("mongodb://localhost:27017");
         
         this.client.connect();
+        }
+        catch(e){
+
+        }
         
     }
 
@@ -25,11 +30,15 @@ export default class DB {
         
 
 
-
+        try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
+        }
+        catch(e){
+            return false;
+        }
 
         
 
@@ -59,7 +68,7 @@ export default class DB {
     returns a boolean 
     */
     async insertNewUser(docs){
-
+        try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
@@ -69,76 +78,111 @@ export default class DB {
         if(await this.userExists(docs.email) == false){
 
             //insert document into the databse 
-            const result = myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password)  });
+            const result = await myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password)  });
 
             
-            
-            if((await result).acknowledged == true){
-                //console.log(result);
-                //console.log("returned true");
+           //if the insert was successful return true 
+            if(result.acknowledged == true){
+               
                 return true;
             }
+            //was not successful
             else{
-                //console.log(result);
-                //console.log("returned false");
+                
                 return false;
             }
-            //testing
-            const documents = await myColl.find({}).toArray();
-            for(let i = 0; i < await myColl.countDocuments({}); i++){
-                //console.log(documents[i])
-            }
-
-            //testing
         }
-        //don't create new user
+        //if the user already exists don't create new user
         else{
             return false;
         }
+    }
+    catch(e){
+        return false;
+    }
 
 
     }
 
 
-    //This method returns a user object
-    async getUser(userName){
+    /*
+    This method returns a user object
+    Parameter 1: email --- String 
+    returns a JSON object or false if an error occured 
+    */
+    async getUser(email){
+        try{
+
+        
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
-        return await myColl.findOne({"userName": String(userName)});
+        return await myColl.findOne({"email": String(email)});
+        }
+        catch(e){
+            return false;
+        }
     }
 
+    /*
     //This method deletes a user 
-    async deleteUser(userName){
-
+    Parameter 1: email --- String
+    returns nothing or false if an error occured 
+    */
+    async deleteUser(email){
+        try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
-        await myColl.deleteOne({"userName": String(userName)});
+        await myColl.deleteOne({"email": String(email)});
+        }
+        catch(e){
+            return false;
+        }
     
     }
 
 
+    /*
+    This inserts a one time code with an email into the database 
+    Parameter 1: email --- String
+    Parameter 2: code --- String
+    returns nothing
+    */
     async InsertOneTimeCode(Email, code){
+        try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("ChangePasswordMFA");
 
         await myColl.insertOne({email: Email, passcode: code}, { expiresAt: 5* 60 * 1000} );
+        }
+        catch(e){
+
+        }
 
     }
 
+    /*
+    This method gets a secret from the database to generate a one time code
+    returns a String
+    */
     async getSecret(){
+        try{
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("ChangePasswordMFA");
 
         return await myColl.findOne({name: "secret"})
+        }
+        catch(e){
+
+        }
 
     }
 
