@@ -38,7 +38,8 @@ function OneTimeCode(){
 
             //response is ok
             if(response.status === 200){
-                //TODO go to new page
+                //go to the next page
+                window.location.href = response.url;
             }
             //response is not ok
             else{

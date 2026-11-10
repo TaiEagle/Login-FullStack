@@ -4,7 +4,7 @@ import path from 'node:path';
 import express from 'express';
 //const auth = require("./src/Auth");
 import auth from "./src/Auth.js";
-
+import cookieParser from 'cookie-parser';
 
 
 const __dirname = import.meta.dirname;
@@ -20,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'createAccount')));
 app.use(express.static(path.join(__dirname, 'emailPrompt')));
 //one time code assets
 app.use(express.static(path.join(__dirname, 'OneTimeCode')));
+app.use(express.static(path.join(__dirname, 'changePassword')));
 
 
 
@@ -181,10 +182,12 @@ app.post("/OneTimeCode", async (req, res) =>{
     let verified = await authObj.authenticateCode(code);
     
     if(verified === true){
-      
+      let OTCJSON = {oneTimeCode: code}
       //send the code 
-      //change password 
-      //app.sendJson({oneTimeCode: code});
+      res.sendJson(OTCJSON);
+      //redirect to a the change password 
+      res.redirect('/UpdatePassword')
+      
       //send change password page
       //app.sendFile(__dirname);
     }
@@ -209,7 +212,9 @@ app.post("/OneTimeCode", async (req, res) =>{
 
 
 
-
+app.get('/UpdatePassword', (req, res) => {
+  res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
+});
 
 
 
