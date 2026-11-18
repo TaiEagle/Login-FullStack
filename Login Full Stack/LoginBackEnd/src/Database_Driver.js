@@ -30,21 +30,22 @@ export default class DB {
         
 
 
-        try{
-        //connect to database
-        const myDB = this.client.db("userAccount");
-        //connect to collection
-        const myColl = myDB.collection("AuthCredentials");
-        }
-        catch(e){
-            return false;
-        }
+        
 
         
 
         //query the database to determine is a document exists with that email 
         try{
-            if(await myColl.findOne({"email": String(email)}) != null ){
+
+        //connect to database
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("AuthCredentials");
+        
+
+            
+            if(await myColl.findOne({email: String(email)}) != null){
+                console.log("return true")
             //user found
             return true;
         }
@@ -55,7 +56,8 @@ export default class DB {
         
         catch(e){
             //user does not exits 
-            return false;
+            
+            return null;
         }
     }
 
@@ -74,15 +76,18 @@ export default class DB {
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
+
+        const userExists = await this.userExists(docs.email);
+
         //check if the user does not exist
-        if(await this.userExists(docs.email) == false){
+        if( userExists=== false){
 
             //insert document into the databse 
             const result = await myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password)  });
 
             
            //if the insert was successful return true 
-            if(result.acknowledged == true){
+            if(result.acknowledged === true){
                
                 return true;
             }
@@ -91,6 +96,9 @@ export default class DB {
                 
                 return false;
             }
+        }
+        else if(userExists === null){
+            return false;
         }
         //if the user already exists don't create new user
         else{
@@ -131,14 +139,14 @@ export default class DB {
     Parameter 1: email --- String
     returns nothing or false if an error occured 
     */
-    async deleteUser(email){
+    async deleteUser(emailStr){
         try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("AuthCredentials");
 
-        await myColl.deleteOne({"email": String(email)});
+        await myColl.deleteOne({email: emailStr});
         }
         catch(e){
             return false;

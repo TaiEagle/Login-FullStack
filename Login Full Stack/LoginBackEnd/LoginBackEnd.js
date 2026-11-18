@@ -13,7 +13,7 @@ const port = 3000;
 
 
 //Login assets
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'Login')));
 //create account assets
 app.use(express.static(path.join(__dirname, 'createAccount')));
 //change password assets
@@ -28,9 +28,20 @@ app.use(express.static(path.join(__dirname, 'changePassword')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true }));
 
+/*
+//cookie session options
+app.use(cookieSession({
+
+  name: "session",
+  maxAge: 1000 * 60 * 60 // expires after an hour
+}))
+  */
+
+app.use(cookieParser());
+
 //Login page
 app.get('/Login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'Login', 'index.html'));
 })
 
 
@@ -38,7 +49,7 @@ app.get('/Login', (req, res) => {
 
 //login attempt
 app.post('/Login', async (req, res) => {
-
+  console.log("login")
   try{
 
   //create auth object 
@@ -50,10 +61,16 @@ app.post('/Login', async (req, res) => {
   //authenticate user
   let authenticated = await authObj.authenticate(Email, password);
   //if the use is authenticated send jwt token 
+  
   if( authenticated === true){
     let token = authObj.createToken(req.body.JSON_userName);
     
-    res.send(token)
+    res.cookie("JWT", token, {
+      //last for 1 hour 
+      maxAge: 1000 * 60 * 60
+    })
+    res.redirect("/Home");
+    
   }
   else{
     
@@ -79,7 +96,7 @@ app.get('/CreateAccount', (req, res) =>{
 
 //create account request 
 app.post('/CreateAccount', async (req, res) => {
-  
+  console.log("create account")
   try{
   //ensure user input is a string
   const authObj = new auth();
@@ -101,6 +118,9 @@ app.post('/CreateAccount', async (req, res) => {
   //if use creation failed send 500 status 
   if(response === false){
     res.sendStatus(500);
+  }
+  else if(response === null){
+    res.sendStatus(400);
   }
   //else return to the login page
   else{
@@ -182,14 +202,18 @@ app.post("/OneTimeCode", async (req, res) =>{
     let verified = await authObj.authenticateCode(code);
     
     if(verified === true){
-      let OTCJSON = {oneTimeCode: code}
+      //let OTCJSON = {oneTimeCode: code}
       //send the code 
-      res.sendJson(OTCJSON);
+      //res.sendJson(OTCJSON);
+
+      //send cookie
+      res.cookie("OTP", code, {
+        //last for an hour
+        maxAge: 1000 * 60 * 60
+      })
       //redirect to a the change password 
       res.redirect('/UpdatePassword')
       
-      //send change password page
-      //app.sendFile(__dirname);
     }
     else{
       
@@ -198,7 +222,7 @@ app.post("/OneTimeCode", async (req, res) =>{
 
   }
   catch(e){
-
+      res.sendStatus(400);
   }
   
 
@@ -211,11 +235,32 @@ app.post("/OneTimeCode", async (req, res) =>{
 
 
 
-
+//This route changes the user password
 app.get('/UpdatePassword', (req, res) => {
   res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
 });
+//This roud handles the change password request 
+app.post('/UpdatePassword', (req, res) =>{
+  
+    //get new password
+    let newPassword = String(req.body.password);
+    //get OTP cookie
+    let OTP = req.cookies.OTP;
 
+    //update password 
+    //TODO create auth method to update password 
+
+});
+
+
+
+
+
+
+app.get('/Home',  (req, res) =>{
+  res.sendFile(path.join(__dirname, "home.html"))
+  
+})
 
 
 

@@ -31,46 +31,54 @@ export default class Auth{
     */
     
     async createUser(firstName, lastName, email, password){
-        //console.log("execute 3");
-        const DB_Driver = await new DB();
+        
+  
 
         
         //hash and salt password
         try{
-            
+            const DB_Driver = await new DB();
             //ensure user input is a string 
             let firstNameStr = String(firstName);
             let lastNameStr = String(lastName);
             let emailStr = String(email);
             let passwordStr = String(password);
 
+            //check that the email is the right format 
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailCheck = regex.test(emailStr);
+            if(emailCheck === true){
+                //continue
+            }
+            else{
+                return null;
+            }
+
             //create password hash
             const hash = await argon2.hash(passwordStr)
             //Create JSON object to store in the database 
-            const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": email, "password": hash} ;
+            const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": emailStr, "password": hash} ;
 
-            //If the user does not exist 
-            if(await DB_Driver.userExists(emailStr) === false){
-                //insert account details 
-                let driverSucess = await DB_Driver.insertNewUser(user);
-
-                //if the database insertion was successful retun true 
-                if( await driverSucess == true){
             
-                    return true;
-                    }
-                //If it was not succesful return false.
-                else{
-                    
-                        return false;
-                    }
-                
-            }
-            //If the user does exist don't create the account
+            
+                //insert account details 
+            let driverSucess = await DB_Driver.insertNewUser(user);
+
+            //if the database insertion was successful retun true 
+            if(driverSucess === true){
+            
+                return true;
+                }
+            
+            //If it was not succesful return false.
             else{
+                    
+                    return false;
+                }
                 
-                return false;
-            }
+            
+            //If the user does exist don't create the account
+            
             
 
 
@@ -94,16 +102,19 @@ export default class Auth{
     */
    async authenticate(userName, passWord){
 
-        //Data base driver object 
-        let DB_Driver = await new DB();
 
-        //get the user account information 
-        let user = await DB_Driver.getUser(userName);
 
         
 
         //authenticate user 
         try{
+
+            //Data base driver object 
+            let DB_Driver = await new DB();
+
+            //get the user account information 
+            let user = await DB_Driver.getUser(userName);
+            //#TODO if use does not exist return false
             //If the hashed password matches the stored hashed password
             if(await argon2.verify(user.password, passWord)){
                 
@@ -234,8 +245,9 @@ export default class Auth{
         dotenv.config()
         const DB_Driver = new DB();
         
+        const userExists = await DB_Driver.userExists(email);
         //check if the user exists
-        if(await DB_Driver.userExists(email) === true){
+        if( userExists === true){
             
             
             
@@ -286,6 +298,9 @@ export default class Auth{
                
 
 
+        }
+        else if(userExists === null){
+            return false;
         }
         else{
             

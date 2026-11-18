@@ -31,14 +31,14 @@ QUnit.test('Add user', async (assert) => {
 
     //add user name
     let authObj = new Auth();
-    let writeSuccess = await authObj.createUser("userName", "password123");
+    let writeSuccess = await authObj.createUser("testName", "testLastName", "testEmail@email.email", "SuperSecretPassword");
 
     
     //check that the user does exist
     assert.equal(writeSuccess, true);
 
 
-    await dbDriver.deleteUser("userName");
+    await dbDriver.deleteUser("testEmail@email.email");
 
 
 
@@ -112,27 +112,6 @@ QUnit.test('JWT testing bad name payload', (assert =>{
 
 }))
 
-/*
-QUnit.test('One Time Code', async (assert) =>{
-    const otp = new OTP();
-    const authObj = new Auth();
-
-    //create secret
-    const secret = await authObj.generateSecret();
-    console.log(secret)
-    console.log(typeof(secret))
-    //generate the code 
-    const code = await authObj.oneTimeCode(secret);
-    console.log(code);
-
-    const verify = await otp.verify({secret, code});
-
-    assert.equal(verify.valid, true);
-
-
-
-})
-    */
 
 
 QUnit.test('One Time Code2', async (assert) =>{
@@ -141,12 +120,10 @@ QUnit.test('One Time Code2', async (assert) =>{
 
     //create secret
     const secret = otp.generateSecret();
-    console.log(secret)
-    console.log(typeof(secret))
+ 
     //generate the code 
     const token = await otp.generate({secret});
-    console.log(token);
-    console.log(typeof(token))
+  
 
     const verify = await otp.verify({secret, token});
 
@@ -162,18 +139,27 @@ QUnit.test('OneTimeCode3', async  (assert) => {
 
     //create secret
     const secret = generateSecret();
-    console.log(secret)
-    console.log(typeof(secret))
+   
     //create code 
     const token = await generate({secret});
-    console.log(token)
-    console.log(typeof(token))
+ 
 
     const result = await verify({secret, token});
-    console.log(result.valid);
+    
 
 
     assert.equal(result.valid, true);
 
 
+})
+
+QUnit.test('Email Regex test', (assert) =>{
+    var str = "not email";
+    var str2 = "email@gmail.com";
+
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailCheck = regex.test(str);
+    const emailCheck2 = regex.test(str2);
+    assert.equal(emailCheck, false);
+    assert.equal(emailCheck2, true);
 })

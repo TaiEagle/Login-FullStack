@@ -13,10 +13,10 @@ function CreateAccount(){
         const form = e.target;
         const formData = new FormData(form);
 
-        let firstName = formData.get("firstName");
-        let lastName = formData.get("lastName");
-        let email = formData.get("email");
-        let password = formData.get("password");
+        let firstName = String(formData.get("firstName"));
+        let lastName = String(formData.get("lastName"));
+        let email = String(formData.get("email"));
+        let password = String(formData.get("password"));
 
         console.log(firstName)
         console.log(lastName)
@@ -29,6 +29,7 @@ function CreateAccount(){
             //show required error and don't submit 
             const required = document.getElementById("required");
             required.style.visibility = "visible";
+            console.log("empty")
             return;
         }
         else{
@@ -40,11 +41,11 @@ function CreateAccount(){
 
         //JSON body 
         const bodyJson = JSON.stringify({firstNameJson: firstName, lastNameJson: lastName, emailJson: email, passwordJson: password})
-        
+        console.log("1")
         const response = await fetch(URL, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: bodyJson
+            body: JSON.stringify({firstNameJson: firstName, lastNameJson: lastName, emailJson: email, passwordJson: password})
 
 
         })
@@ -59,7 +60,7 @@ function CreateAccount(){
                 
             }
         else{
-            //TODO: display error
+            
             const required = document.getElementById("error");
             required.style.visibility = "visible";
 

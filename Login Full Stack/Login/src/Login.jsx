@@ -4,6 +4,7 @@ function Login(){
     async function Submit(e){
 
         const URL = "http://localhost:3000/Login"
+        const URL2 = "http://localhost:3000/Cookie"
         //prevent the browser from reloading the page
         e.preventDefault();
         //read the form data
@@ -25,13 +26,20 @@ function Login(){
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({JSON_userName: userName, JSON_password: password})
-        });
+        })
+       
+
         //store the token if the response status is ok
         if(response.status === 200){
-            const token = response.text();
+            //const token = response.text();
             //console.log(typeof(token));
             //console.log(token);
-            sessionStorage.setItem("token", token);
+            //sessionStorage.setItem("token", token);
+            
+            console.log("response is 200")
+            window.location.href = response.url;
+            //testing
+           
         }
         else{
             console.log("status not 200");
