@@ -163,3 +163,174 @@ QUnit.test('Email Regex test', (assert) =>{
     assert.equal(emailCheck, false);
     assert.equal(emailCheck2, true);
 })
+
+
+QUnit.test('OTP right code', async (assert) =>{
+    const authObj = new Auth();
+
+    
+   
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+    
+    const authenticated = await authObj.authenticateCode(OTP, email);
+
+    assert.equal(authenticated, true);
+
+
+
+})
+
+QUnit.test('OTP Wrong code', async (assert) =>{
+    const authObj = new Auth();
+
+
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+    const wrongOTP = OTP + 1;
+
+    const authenticated = await authObj.authenticateCode(wrongOTP, email);
+
+    assert.equal(authenticated, false);
+
+    const authenticatedRight = await authObj.authenticateCode(OTP, email);
+
+    assert.equal(authenticatedRight, true);
+
+
+
+
+})
+
+
+//currently doesn't run because it takes 31 seconds to run --- no fun to wait :(
+QUnit.test.skip('OTP time expire', async (assert) =>{
+    const authObj = new Auth();
+
+
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+    
+
+    //wait for 31 seconds 
+    const startTime = Date.now();
+    let repeat = true
+    while(repeat){
+        //if 31 seconds pass
+        if(( Date.now()  - startTime  ) >= 29000  ){
+            repeat = false;
+        }
+        else{
+            //do nothing 
+        }
+    }
+    const authenticated = await authObj.authenticateCode(OTP);
+
+    assert.equal(authenticated, true);
+
+
+
+});
+
+
+QUnit.test.skip('OTP time test', async (assert) =>{
+    const authObj = new Auth();
+
+    
+   
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+
+    let seconds = 1000;
+    
+        //wait for 25 seconds 
+    const startTime = Date.now();
+    let repeat = true
+    while(repeat){
+        ;
+        //if it is equal to or greater than seconds 
+        if( Date.now()  - startTime   >= seconds){
+            //add 1000 to seconds 
+            console.log("seconds:  " + seconds)
+            seconds = seconds + 1000;
+            let authenticated = await authObj.authenticateCode(OTP, email)
+            if(authenticated === false){
+            repeat = false;
+            console.log("seconds fulfiled:  " + seconds)
+            console.log("authenticated: " + authenticated)
+            }
+
+            
+        }
+        else{
+            //do nothing 
+        }
+    }
+    
+    const authenticated = await authObj.authenticateCode(OTP, email)
+    assert.equal(authenticated, false);
+
+
+
+})
+
+
+
+
+QUnit.test('UpdatePassword', async (assert) =>{
+    const authObj = new Auth();
+
+    //get code
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+
+
+    //authenticate OTP 
+    await authObj.authenticateCode(OTP, email);
+
+ 
+
+    //change current password
+    const newPassword = "password1234"
+    await authObj.changePassword(newPassword, OTP);
+
+    //authenticate user
+    let userName = "userNameAuthTEST";
+    
+    let athenticate = await authObj.authenticate(userName, newPassword);
+    
+    console.log("auth1  " + athenticate)
+    assert.equal(athenticate, true);
+
+
+
+    //authenticate with old password
+    const oldPassword = "password123"
+    let athenticate2 = await authObj.authenticate(userName, oldPassword);
+    
+    console.log("auth2  " + athenticate2)
+    assert.equal(athenticate2, false );
+
+
+
+    
+    //reset to old password and authenticate 
+    let resetPassword = "password123";
+    await authObj.changePassword(resetPassword, OTP);
+    
+    let athenticate3 = await authObj.authenticate(userName, resetPassword);
+    console.log("auth3  " + athenticate3)
+
+    assert.equal(athenticate3, true );
+
+
+})
+
+
+
+

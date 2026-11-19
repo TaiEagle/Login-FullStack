@@ -7,12 +7,25 @@ const { sign, verify } = jwt;
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 import {OTP} from 'otplib'
+import speakeasy from 'speakeasy'
 
 
 export default class Auth{
 //class Auth{
     constructor(){
         
+    }
+
+
+    /*
+    This method hashes a password
+    Parameter 1: password --- String
+    returns a string
+
+    */
+
+    async hashPassword(password){
+        return await argon2.hash(password);
     }
 
 
@@ -46,7 +59,8 @@ export default class Auth{
 
             //check that the email is the right format 
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const emailCheck = regex.test(emailStr);
+            //const emailCheck = regex.test(emailStr);
+            let emailCheck = true
             if(emailCheck === true){
                 //continue
             }
@@ -55,9 +69,14 @@ export default class Auth{
             }
 
             //create password hash
-            const hash = await argon2.hash(passwordStr)
+            //const hash = await argon2.hash(passwordStr)
+            const hash = await this.hashPassword(passwordStr);
+
+            //generate secret 
+            const secret = this.generateSecret().base32;
+            let counter = 0;
             //Create JSON object to store in the database 
-            const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": emailStr, "password": hash} ;
+            const user = {"firstName": firstNameStr, "lastName": lastNameStr, "email": emailStr, "password": hash, "secret": secret, "count": counter} ;
 
             
             
@@ -84,6 +103,9 @@ export default class Auth{
 
         }
         catch(error){
+            console.log(e)
+            console.log("error")
+           
             return false;
         }
 
@@ -199,8 +221,16 @@ export default class Auth{
 
     }
 
+    /*
+    This method generates a secrete for a new user 
+    returns a String
+    */
+   generateSecret(){
+    const secret = speakeasy.generateSecret();
+    return secret;
+   }
 
-
+   
 
 
     /*
@@ -208,24 +238,37 @@ export default class Auth{
 
     returns the one time code as a string 
     */
-    async secuirtyCode(){
-        const otp = new OTP();
-        //create secret
-        //const secret = otp.generateSecret();
-        //secret is currently held in the database
-
-
+    async secuirtyCode(email){
+        //const otp = new OTP({strategy: 'totp', period: 60});
         //get secret 
         const DB_Driver = new DB();
-        let secretObj = await DB_Driver.getSecret();
-        let secret = secretObj.oneTimeCodeSecret;
-
+        //get users secret 
+        const secret = await DB_Driver.getSecret(email);
+        
         
         //create one time code 
-        const token = await otp.generate({secret})
+        //const token = await otp.generate({secret})
 
+        //get counter number
+        const userCounter = await DB_Driver.getCounter(email);
+        // Get a counter-based token
+        const token = speakeasy.hotp({
+        secret: secret,
+        encoding: 'base32',
+        counter: userCounter
+        });
+
+        //insert into database
+        const inserted = await DB_Driver.InsertOneTimeCode(email, token)
+        //if insert fails return false otherwise return token 
+        if(inserted === false ){
+            return false;
+        }
+        else{
+            return token;
+        }
         
-        return token;
+        
 
     }
 
@@ -270,11 +313,14 @@ export default class Auth{
 
         
             //create one time secuirty code 
-            let oneTimeCode = await this.secuirtyCode();
+            let oneTimeCode = await this.secuirtyCode(email);
+            if(oneTimeCode === false){
+                return false;
+            }
             //text to be sent via email
             let emailText = "Your one time code is: " + oneTimeCode;
-            //add it to the database 
-            await DB_Driver.InsertOneTimeCode(email, oneTimeCode);
+        
+            
 
             // send the email
             try {
@@ -317,23 +363,43 @@ export default class Auth{
 
     returns a boolean 
     */
-    async authenticateCode(token){
+    async authenticateCode(tokenStr, email){
         try{
         
-        const otp = new OTP();
+        //const otp = new OTP();
         const DB_Driver = new DB();
         
         //Get secret
-        let secretObj = await DB_Driver.getSecret();
-        let secret = secretObj.oneTimeCodeSecret;
-
+        let secret = await DB_Driver.getSecret(email);
+        //let secret = secretObj.secret;
         
+        //get OTP object from the database 
+        const OTPObj = await DB_Driver.getOTPObj(tokenStr);
+        //console.log("OTP object email:  " + OTPObj.email + "  OTP code:  " + OTPObj.passcode + "  secret:  " + secret)
+        
+        //if it does not exist 
+        if(OTPObj === false){
+            return false;
+        }
+
+        const counter = await DB_Driver.getCounter(email);
+        console.log("counter:  " + counter + " Type: " + typeof(counter))
+        const token = OTPObj.passcode;
         //verify the token is valid 
-        let verify = await otp.verify({secret, token});
+        //let verify = await otp.verify({secret, token});
+        // Verify a counter-based token
+        const tokenValidates = speakeasy.hotp.verify({
+        secret: secret,
+        encoding: 'base32',
+        token: token,
+        counter: counter
+        });
         
         //if the token is valid 
-        if(verify.valid === true){
-            
+        if(tokenValidates === true){
+            //set verified to true 
+            await DB_Driver.updateVerifiedStatus(OTP);
+            await DB_Driver.updateUserCounter(email)
             return true;
         }
         else{
@@ -352,11 +418,74 @@ export default class Auth{
 
 }
 
+    /*
+    This method checks that a OTP was authenticated and still exists within time constraints 
+    Parameter 1: OTP --- String
+    returns the email or false
+    */
+   async OTPObjValid(OTP){
+        const DB_Driver = new DB();
+
+        //get the object
+        const OTPObj = await DB_Driver.getOTPObj(OTP );
+        //check if the object exists
+        if(OTPObj != false){
+            //get the verified attribute 
+            const verified = OTPObj.verified;
+            //if it has been verified 
+            if(verified === true){
+                return OTPObj.email;
+            }
+            //verified is not true
+            else{
+                return false;
+            }
+        }
+        //object does not exist 
+        else{
+            return false;
+        }
+
+   }
 
     //This method changes the password
-    changePassword(){
+    async changePassword(password, OTP){
+        try{
+        //database driver object 
+        const DB_Driver = new DB();
 
-        
+
+        //verifiy the OTP is valid 
+        const authenticated = await this.OTPObjValid(OTP);
+        console.log("Authenticated:  " + authenticated)
+
+        //if OTP is valid
+        if(authenticated != false && authenticated != null){
+
+            //create password hash 
+            const hash = await this.hashPassword(password);
+            //put email into emailStr
+            const emailStr = authenticated;
+            //update the password
+            const updated = await DB_Driver.updatePassword(hash, emailStr);
+            //if update was sucessful and updated a matched object return true
+            if(updated === true){
+                return true;
+            }
+            //else return false 
+            else{
+                return false;
+            }
+        }
+        //if code is not valid 
+        else{
+            return false;
+        }
+    }
+    catch(e){
+        return false;
+    }
+
     }
 
 

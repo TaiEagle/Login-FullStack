@@ -82,8 +82,10 @@ export default class DB {
         //check if the user does not exist
         if( userExists=== false){
 
+            //generate secret 
+            
             //insert document into the databse 
-            const result = await myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password)  });
+            const result = await myColl.insertOne({ "firstName": String(docs.firstName), "lastName": String(docs.lastName), "email": String(docs.email), "password": String(docs.password), "secret": String(docs.secret), "counter": docs.count  });
 
             
            //if the insert was successful return true 
@@ -168,31 +170,206 @@ export default class DB {
         //connect to collection
         const myColl = myDB.collection("ChangePasswordMFA");
 
-        await myColl.insertOne({email: Email, passcode: code}, { expiresAt: 5* 60 * 1000} );
+        const inserted = await myColl.insertOne({email: Email, passcode: code, verified: false, CreatedTime: new Date()},  );
+        
+        if(inserted.acknowledged === true){
+            return true;
+        }
+        else{
+            return false;
+        }
+
         }
         catch(e){
-
+            return false;
         }
 
     }
+
+
+    /*
+    This method gets a OTP object from the database 
+    Parameter 1: OTP --- String
+    returns the object or false if it doesn't exist 
+    */
+   async getOTPObj(OTP){
+    try{
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        const OTPObj = await myColl.findOne({passcode: OTP})
+        console.log(OTPObj);
+        //object exists
+        if(OTPObj != null){
+            return OTPObj;
+        }
+        else{
+            return false;
+        }
+    }
+
+    
+    catch(e){
+        return false;
+    }
+
+        
+   }
+
+
+   /*
+
+   This method updates the verified attribute in the OTP object 
+   Parameter 1: OTP --- String
+   returns nothing 
+   */
+  async updateVerifiedStatus(OTP){
+    try{
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        //object to change
+        const filter = {passcode: OTP};
+        const updateValue = {$set: { verified: true}};
+
+        await myColl.updateOne(filter, updateValue);
+    }
+    catch(e){
+
+    }
+  }
+  /**
+   * This method updates the counter attribute 
+   * Parameter 1: userEmail
+   * returns nothing 
+   * 
+   */
+  async updateUserCounter(userEmail){
+    try{
+        const myDB = this.client.db("userAccount");
+        //connect to collection
+        const myColl = myDB.collection("AuthCredentials");
+
+        //object to change
+        const filter = {email: userEmail};
+        const updateValue = {$inc: { counter:  1}};
+
+        await myColl.updateOne(filter, updateValue);
+    }
+    catch(e){
+
+    }
+  }
 
     /*
     This method gets a secret from the database to generate a one time code
     returns a String
     */
-    async getSecret(){
+    async getSecret(userEmail){
         try{
-        const myDB = this.client.db("userAccount");
-        //connect to collection
-        const myColl = myDB.collection("ChangePasswordMFA");
+            const userObj = await this.getUser(userEmail);
+            
+            return userObj.secret;
 
-        return await myColl.findOne({name: "secret"})
+       
         }
         catch(e){
 
         }
 
     }
+    /*
+    This method get the counter attribute from a user
+    Parameter 1: userEmail --- String
+    returns an integer
+    */
+   async getCounter(userEmail){
+            try{
+            const userObj = await this.getUser(userEmail);
+            
+            return userObj.counter;
+
+       
+        }
+        catch(e){
+
+        }
+
+    }
+   
+
+    /*
+    This method gets a OTP object from the database 
+    Parameter 1: Code --- string
+    returns object 
+    */
+   async getOTPObj(Code){
+    try{
+
+        //connect to database 
+        const myDB = this.client.db("userAccount");
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        //get obejct 
+        const OTPObject = await myColl.findOne({passcode: Code});
+        
+        if(OTPObject != null){
+            return OTPObject;
+        }
+        else{
+            return false;
+        }
+        
+
+    }
+    catch(e){
+        return false;
+    }
+   }
+
+
+    /*
+    This method Updates a password for a user 
+    Parameter 1: PasswordHash --- String
+    returns a boolean 
+    returns true if update was sucessful- false otherwise 
+
+    */
+   async updatePassword(passwordHash, emailStr){
+    try{
+        //connect to database and collection 
+        const myDB = this.client.db("userAccount");
+        const myColl = myDB.collection("AuthCredentials");
+
+        //filter to find email
+        const filter = {email: emailStr};
+        //update password
+        const update = {
+            $set: {password: passwordHash}
+        };
+
+        //update in database
+        const response = await myColl.updateOne(filter, update);
+
+        //if sucessful return true, false otherwise
+        if(response.acknowledged === true && response.modifiedCount > 0 ){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+
+
+    }
+    catch(e){
+
+    }
+   }
+
+
 
 
 }

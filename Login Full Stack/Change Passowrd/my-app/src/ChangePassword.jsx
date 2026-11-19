@@ -7,7 +7,7 @@ function ChangePassword(){
         e.preventDefault();
         const URL = "http://localhost:3000/UpdatePassword";
 
-        console.log("submitted")
+        
         //get form input
         let form = e.target;
         let formData = new FormData(form);
@@ -32,13 +32,13 @@ function ChangePassword(){
        
             //send new password along with cookie
             const response = fetch(URL, {
-                method: POST,
+                method: "POST",
                 headers: {"Content-type": "application/json"},
                 body: bodyObj
             });
-
+            console.log(response.status)
             if(response.status === 200){
-                //redirect 
+                window.location.href = response.url; 
             }
             else{
                 document.getElementById("error").style.visibility = "visible"; 

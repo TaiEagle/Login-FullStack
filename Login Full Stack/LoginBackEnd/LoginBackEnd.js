@@ -163,10 +163,11 @@ app.post('/ChangePassword', async (req, res) =>{
 
   //send the secuirty code to the user if the user exists
   let sent = await authObj.sendSecuirtyCode(email);
-  
+    
    if( sent === true){
     //send web page 
     
+    res.cookie('email', email)
     res.redirect('/OneTimeCode');
 
    }
@@ -196,10 +197,14 @@ app.post("/OneTimeCode", async (req, res) =>{
      
     //ensure user input is a string
     let code = String(req.body.Code);
-    
+    let email = String(req.cookies.email)
+    console.log("code:  " + code)
+    console.log("email:  " + email)
+    //get the email from cookie
     
     //verify the code 
-    let verified = await authObj.authenticateCode(code);
+    let verified = await authObj.authenticateCode(code, email);
+    console.log(verified);
     
     if(verified === true){
       //let OTCJSON = {oneTimeCode: code}
@@ -212,6 +217,7 @@ app.post("/OneTimeCode", async (req, res) =>{
         maxAge: 1000 * 60 * 60
       })
       //redirect to a the change password 
+      console.log("redirect")
       res.redirect('/UpdatePassword')
       
     }
@@ -222,6 +228,7 @@ app.post("/OneTimeCode", async (req, res) =>{
 
   }
   catch(e){
+    console.log("error")
       res.sendStatus(400);
   }
   
@@ -237,18 +244,33 @@ app.post("/OneTimeCode", async (req, res) =>{
 
 //This route changes the user password
 app.get('/UpdatePassword', (req, res) => {
-  res.sendFile(path.join(__dirname, 'changePassword', 'changePassword.html'));
+  res.sendFile(path.join(__dirname, 'changePassword', 'index.html'));
 });
 //This roud handles the change password request 
-app.post('/UpdatePassword', (req, res) =>{
-  
-    //get new password
-    let newPassword = String(req.body.password);
-    //get OTP cookie
-    let OTP = req.cookies.OTP;
+app.post('/UpdatePassword', async (req, res) =>{
+    try{
+      const authObj = new auth();
+      //get new password
+      let newPassword = String(req.body.password);
+      //get OTP cookie
+      let OTP = req.cookies.OTP;
+      console.log(OTP)
+      console.log(newPassword)
 
-    //update password 
-    //TODO create auth method to update password 
+      //update password 
+      const updated = await authObj.changePassword(newPassword, OTP);
+      console.log(updated)
+      if(updated === true){
+        res.redirect('/Login')
+      }
+      else{
+        res.sendStatus(400);
+      }
+  }
+  catch(e){
+    console.log("error")
+    res.sendStatus(400);
+  }
 
 });
 

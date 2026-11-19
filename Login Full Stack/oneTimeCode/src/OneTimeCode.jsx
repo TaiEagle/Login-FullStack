@@ -22,14 +22,14 @@ function OneTimeCode(){
         if(code === null){
             let element = document.getElementById("emptyField");
             element.style.visibility = "visible";
-            console.log("email is null")
+            
             
         }
         else{
 
 
             let postBody = JSON.stringify({Code: code});
-            console.log(postBody);
+            
             const response = await fetch(URL, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -39,7 +39,7 @@ function OneTimeCode(){
             //response is ok
             if(response.status === 200){
                 //go to the next page
-                window.location.href = response.url;
+                window.location.href = response.url
             }
             //response is not ok
             else{

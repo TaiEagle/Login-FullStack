@@ -10,7 +10,8 @@
     "mongodb": "^7.6.0",
     "nodemailer": "^10.1.7",
     "otplib": "^13.5.0",
-    "resend": "^6.34.1"
+    "resend": "^6.34.1",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "qunit": "^2.26.0"
