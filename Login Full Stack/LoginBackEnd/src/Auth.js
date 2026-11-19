@@ -398,7 +398,7 @@ export default class Auth{
         //if the token is valid 
         if(tokenValidates === true){
             //set verified to true 
-            await DB_Driver.updateVerifiedStatus(OTP);
+            await DB_Driver.updateVerifiedStatus(tokenStr);
             await DB_Driver.updateUserCounter(email)
             return true;
         }
@@ -457,7 +457,7 @@ export default class Auth{
 
         //verifiy the OTP is valid 
         const authenticated = await this.OTPObjValid(OTP);
-        console.log("Authenticated:  " + authenticated)
+        //console.log("Authenticated:  " + authenticated)
 
         //if OTP is valid
         if(authenticated != false && authenticated != null){
