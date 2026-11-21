@@ -1,25 +1,35 @@
+/**
+ * Creator: Dakota Osborne
+ * This is a react app for the login page 
+ * 
+ * 
+ * 
+ */
 import './Login.css'
 
 function Login(){
     async function Submit(e){
 
         const URL = "http://localhost:3000/Login"
-        const URL2 = "http://localhost:3000/Cookie"
+        
         //prevent the browser from reloading the page
         e.preventDefault();
         //read the form data
         const form = e.target;
         
         const formData = new FormData(form);
-        const userName = formData.get("name");
-        const password = formData.get("password");
-        //console.log(userName);
-        //console.log(password);
+        const userName = String(formData.get("name"));
+        const password = String(formData.get("password"));
+       
 
-        const user = JSON.stringify({JSON_userName: userName, JSON_password: password})
+        if(userName === "" || password === ""){
+            document.getElementById("fill").style.visibility = "visible";
+        }
+        else{
+            document.getElementById("fill").style.visibility = "hidden"; 
+        }
 
-        console.log(user)
-        console.log("sumbitted")
+       
         //send to the server 
         
         const response = await fetch(URL, {
@@ -29,21 +39,22 @@ function Login(){
         })
        
 
-        //store the token if the response status is ok
-        if(response.status === 200){
-            //const token = response.text();
-            //console.log(typeof(token));
-            //console.log(token);
-            //sessionStorage.setItem("token", token);
-            
-            console.log("response is 200")
+        
+        if(response.status === 200){ //cookie is stored 
+            //redirect
             window.location.href = response.url;
-            //testing
+            
            
         }
-        else{
-            console.log("status not 200");
+        //if the login was wrong
+        else if(response.status === 400){
+            
             //show errors 
+            document.getElementById("invalid").style.visibility = "visible"; 
+        }
+        //if anyother error occured show error
+        else{
+            document.getElementById("error").style.visibility = "visible";
         }
         
 
@@ -63,8 +74,9 @@ function Login(){
                     <input type='password' className='componentInput'name='password'></input>
                 </div>
                 
-                <h6 className="invalid">Invalid username or password*</h6>
-                <h6 className="fill">Fill out all fields*</h6>
+                <h6 className="invalid" id='invalid'>Invalid username or password*</h6>
+                <h6 className="fill" id='fill'>Fill out all fields*</h6>
+                <h6 id='error'>An error occured*</h6>
                 <button className='submit' type="submit" >Submit</button>
             </form>
             

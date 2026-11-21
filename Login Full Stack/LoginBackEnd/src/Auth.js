@@ -239,9 +239,27 @@ export default class Auth{
     returns the one time code as a string 
     */
     async secuirtyCode(email){
-        //const otp = new OTP({strategy: 'totp', period: 60});
+         const DB_Driver = new DB();
+
+         let counter = 0;
+        //check that there is not an abundance of OTP for a user in the database at a given time to protect agaisnt DOS attack 
+        const OTPObjExists = await DB_Driver.getOTPObjEmail(email);
+        //if an object exists 
+        if(OTPObjExists != false){
+            //update counter 
+            counter = await OTPObjExists.counter + 1
+            //delete the current object instance 
+            
+            //if more than 100 OTP have been created within 5 minutes, dont't create another 
+            if(counter > 100){
+                return false;
+            }
+            else{
+                await DB_Driver.deleteOTPObject(email);
+            }
+        }
         //get secret 
-        const DB_Driver = new DB();
+       
         //get users secret 
         const secret = await DB_Driver.getSecret(email);
         
@@ -258,8 +276,9 @@ export default class Auth{
         counter: userCounter
         });
 
+
         //insert into database
-        const inserted = await DB_Driver.InsertOneTimeCode(email, token)
+        const inserted = await DB_Driver.InsertOneTimeCode(email, token, counter)
         //if insert fails return false otherwise return token 
         if(inserted === false ){
             return false;
@@ -383,7 +402,7 @@ export default class Auth{
         }
 
         const counter = await DB_Driver.getCounter(email);
-        console.log("counter:  " + counter + " Type: " + typeof(counter))
+        //console.log("counter:  " + counter + " Type: " + typeof(counter))
         const token = OTPObj.passcode;
         //verify the token is valid 
         //let verify = await otp.verify({secret, token});
@@ -468,6 +487,7 @@ export default class Auth{
             const emailStr = authenticated;
             //update the password
             const updated = await DB_Driver.updatePassword(hash, emailStr);
+            console.log("updated: " + updated)
             //if update was sucessful and updated a matched object return true
             if(updated === true){
                 return true;

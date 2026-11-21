@@ -31,7 +31,7 @@ function ChangePassword(){
         const bodyObj = JSON.stringify({password: passwordStr})
        
             //send new password along with cookie
-            const response = fetch(URL, {
+            const response = await fetch(URL, {
                 method: "POST",
                 headers: {"Content-type": "application/json"},
                 body: bodyObj

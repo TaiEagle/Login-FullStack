@@ -80,6 +80,9 @@ h6{
 .fill{
     visibility: hidden;
 }
+#error{
+    visibility: hidden;
+}
 .required{
     color: red;
 }

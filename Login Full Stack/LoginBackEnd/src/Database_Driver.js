@@ -163,14 +163,14 @@ export default class DB {
     Parameter 2: code --- String
     returns nothing
     */
-    async InsertOneTimeCode(Email, code){
+    async InsertOneTimeCode(Email, code, Counter){
         try{
         //connect to database
         const myDB = this.client.db("userAccount");
         //connect to collection
         const myColl = myDB.collection("ChangePasswordMFA");
 
-        const inserted = await myColl.insertOne({email: Email, passcode: code, verified: false, CreatedTime: new Date()},  );
+        const inserted = await myColl.insertOne({email: Email, passcode: code, verified: false, counter: Counter ,CreatedTime: new Date()},  );
         
         if(inserted.acknowledged === true){
             return true;
@@ -330,6 +330,85 @@ export default class DB {
    }
 
 
+  
+    /*
+    This method gets a OTP object from the database 
+    Parameter 1: Code --- string
+    returns object 
+    */
+   async getOTPObjEmail(Email){
+    try{
+
+        //connect to database 
+        const myDB = this.client.db("userAccount");
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        //get obejct 
+        const OTPObject = await myColl.findOne({email: Email});
+        
+        if(OTPObject != null){
+            return OTPObject;
+        }
+        else{
+            return false;
+        }
+        
+
+    }
+    catch(e){
+        return false;
+    }
+   }
+
+   /**
+    * This method deletes an object instance
+    * Parameter 1: Email --- String
+    * 
+    * returns a boolean 
+    */
+
+   async deleteOTPObject(Email){
+    try{
+
+        //connect to database 
+        const myDB = this.client.db("userAccount");
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        //get obejct 
+        const OTPObject = await myColl.deleteOne({email: Email});
+        
+     
+        
+
+    }
+    catch(e){
+        return false;
+    }
+   }
+
+
+   
+   //delete OTP database objects for testing 
+
+   async deleteOTPObjects(Email){
+    try{
+
+        //connect to database 
+        const myDB = this.client.db("userAccount");
+        const myColl = myDB.collection("ChangePasswordMFA");
+
+        //get obejct 
+        const OTPObject = await myColl.deleteOne({email: Email});
+        
+     
+        
+
+    }
+    catch(e){
+        return false;
+    }
+   }
+
     /*
     This method Updates a password for a user 
     Parameter 1: PasswordHash --- String
@@ -354,7 +433,8 @@ export default class DB {
         const response = await myColl.updateOne(filter, update);
 
         //if sucessful return true, false otherwise
-        if(response.acknowledged === true && response.modifiedCount > 0 ){
+        if(response.modifiedCount > 0 ){
+            console.log("modiefied count > 0")
             return true;
         }
         else{
@@ -365,7 +445,7 @@ export default class DB {
 
     }
     catch(e){
-
+        console.log("error")
     }
    }
 

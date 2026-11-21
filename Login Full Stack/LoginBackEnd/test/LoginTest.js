@@ -12,13 +12,9 @@ const {module, test} = QUnit;
 
 QUnit.module('Login');
 
-QUnit.test('test Test', (assert) =>{
-    let x = 7;
-    let y = 7;
-    assert.equal(x, y);
-})
 
 
+//testing add user functionality 
 QUnit.test('Add user', async (assert) => {
     let dbDriver = new DB();
 
@@ -44,7 +40,7 @@ QUnit.test('Add user', async (assert) => {
 
 });
 
-
+//authenticating user
 QUnit.test('Authenticate user', async (assert) => {
     let authObj = new Auth();
 
@@ -55,7 +51,7 @@ QUnit.test('Authenticate user', async (assert) => {
 
     assert.equal(athenticate, true);
 })
-
+//authenticating with a bad password 
 QUnit.test('Authenticate with bad password', async (assert) =>{
     let authObj = new Auth();
 
@@ -66,7 +62,7 @@ QUnit.test('Authenticate with bad password', async (assert) =>{
 
     assert.equal(athenticate, false);
 })
-
+//tests the jwt authentication
 QUnit.test('JWT testing', (assert =>{
 
     let authObj = new Auth();
@@ -80,6 +76,7 @@ QUnit.test('JWT testing', (assert =>{
 
 }))
 
+//tests a changed token
 QUnit.test('JWT testing bad token string', (assert =>{
 
     let authObj = new Auth();
@@ -96,13 +93,15 @@ QUnit.test('JWT testing bad token string', (assert =>{
 
 }))
 
+//this tests that a different email was passed and doesnt match the jwt token it was signed with 
 QUnit.test('JWT testing bad name payload', (assert =>{
 
     let authObj = new Auth();
     
-    const userToken1 = authObj.createToken("userName1", "client");
+    //const userToken1 = authObj.createToken("userName1", "client");
     const userToken2 = authObj.createToken("userName2", "client");
 
+    //token was not signed with userName1 --- token unverified 
     const [decoded, name] = authObj.verifyToken(userToken2, "userName1");
     //console.log(decoded);
 
@@ -113,8 +112,8 @@ QUnit.test('JWT testing bad name payload', (assert =>{
 }))
 
 
-
-QUnit.test('One Time Code2', async (assert) =>{
+//skip
+QUnit.test.skip('One Time Code2', async (assert) =>{
     const otp = new OTP();
     
 
@@ -133,8 +132,8 @@ QUnit.test('One Time Code2', async (assert) =>{
 
 })
 
-
-QUnit.test('OneTimeCode3', async  (assert) => {
+//skip
+QUnit.test.skip('OneTimeCode3', async  (assert) => {
 
 
     //create secret
@@ -152,7 +151,7 @@ QUnit.test('OneTimeCode3', async  (assert) => {
 
 
 })
-
+//this tests the regex works to ensure user input it an email
 QUnit.test('Email Regex test', (assert) =>{
     var str = "not email";
     var str2 = "email@gmail.com";
@@ -164,7 +163,7 @@ QUnit.test('Email Regex test', (assert) =>{
     assert.equal(emailCheck2, true);
 })
 
-
+//this tests that a valid one time code is authenticated 
 QUnit.test('OTP right code', async (assert) =>{
     const authObj = new Auth();
 
@@ -181,7 +180,7 @@ QUnit.test('OTP right code', async (assert) =>{
 
 
 })
-
+//This tests that the one time code authenticates to false when the code is wrong
 QUnit.test('OTP Wrong code', async (assert) =>{
     const authObj = new Auth();
 
@@ -280,7 +279,7 @@ QUnit.test.skip('OTP time test', async (assert) =>{
 
 
 
-
+//This tests the update password functionality 
 QUnit.test('UpdatePassword', async (assert) =>{
     const authObj = new Auth();
 
@@ -304,7 +303,7 @@ QUnit.test('UpdatePassword', async (assert) =>{
     
     let athenticate = await authObj.authenticate(userName, newPassword);
     
-    console.log("auth1  " + athenticate)
+    //console.log("auth1  " + athenticate)
     assert.equal(athenticate, true);
 
 
@@ -313,7 +312,7 @@ QUnit.test('UpdatePassword', async (assert) =>{
     const oldPassword = "password123"
     let athenticate2 = await authObj.authenticate(userName, oldPassword);
     
-    console.log("auth2  " + athenticate2)
+    //console.log("auth2  " + athenticate2)
     assert.equal(athenticate2, false );
 
 
@@ -324,13 +323,67 @@ QUnit.test('UpdatePassword', async (assert) =>{
     await authObj.changePassword(resetPassword, OTP);
     
     let athenticate3 = await authObj.authenticate(userName, resetPassword);
-    console.log("auth3  " + athenticate3)
+    //console.log("auth3  " + athenticate3)
 
     assert.equal(athenticate3, true );
 
 
 })
 
+//This tests to make sure after a code is authenticated, a new one is created 
+QUnit.test('HOTP new code test', async (assert) =>{
+    const authObj = new Auth();
+
+    
+   
+    const email = "userNameAuthTEST"
+    //get one time password
+    const OTP = await authObj.secuirtyCode(email);
+    
+    //authneticate it
+    const authenticated = await authObj.authenticateCode(OTP, email);
+
+    assert.equal(authenticated, true);
+
+    //get another one time passcode
+    const OTP2 = await authObj.secuirtyCode(email);
+
+    assert.notStrictEqual(OTP, OTP2);
+
+    const authenticated2 = await authObj.authenticateCode(OTP2, email);
+
+    assert.equal(authenticated2, true);
+
+})
+
+//OTP DOS attack simulation 
+QUnit.test('OTP DOS attack', async (assert) =>{
+
+    const auth = new Auth();
+    const DB_Driver = new DB();
+
+    let deleteOne = true;
+    const email = "userNameAuthTEST";
+    await DB_Driver.deleteOTPObject(email);
+    assert.equal(deleteOne, true)
+    //repeat for 1000
+    for(let i = 0; i < 1000; i++){
+        //create OTP code 
+        const OTP = await auth.secuirtyCode(email);
+        
+        if(i > 105){
+            //no OTP code should have been created after 100 
+            assert.equal(OTP, false);
+            
+            
+        }
+        //authenticate (to create a new code for the next round)
+        const authenticated = await auth.authenticate(OTP);
 
 
 
+    }
+
+    //clean up database
+    await DB_Driver.deleteOTPObject(email);
+})

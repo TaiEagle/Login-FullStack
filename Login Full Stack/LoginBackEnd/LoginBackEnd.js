@@ -64,7 +64,7 @@ app.post('/Login', async (req, res) => {
   
   if( authenticated === true){
     let token = authObj.createToken(req.body.JSON_userName);
-    
+    console.log("authenticated")
     res.cookie("JWT", token, {
       //last for 1 hour 
       maxAge: 1000 * 60 * 60
@@ -73,12 +73,13 @@ app.post('/Login', async (req, res) => {
     
   }
   else{
-    
+    console.log("Not authenticated")
     //not authenticated
-    res.sendStatus(401);
+    res.sendStatus(400);
   }
   }
   catch(e){
+    console.log("Not authenticated2")
     res.sendStatus(401);
   }
 
@@ -254,14 +255,17 @@ app.post('/UpdatePassword', async (req, res) =>{
       let newPassword = String(req.body.password);
       //get OTP cookie
       let OTP = req.cookies.OTP;
-      console.log(OTP)
-      console.log(newPassword)
+      //console.log(OTP)
+      //console.log(newPassword)
 
       //update password 
       const updated = await authObj.changePassword(newPassword, OTP);
       console.log(updated)
       if(updated === true){
+        console.log("redirect")
+        
         res.redirect('/Login')
+        
       }
       else{
         res.sendStatus(400);
